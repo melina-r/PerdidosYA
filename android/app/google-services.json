@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "629584258883",
+    "project_id": "perdidosya-58f0c",
+    "storage_bucket": "perdidosya-58f0c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629584258883:android:f979e5cc92c23d3f05f1f6",
+        "android_client_info": {
+          "package_name": "com.example.perdidos_ya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBkrbunmptcZha5CMEeJqx6_jJvBWcLq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
