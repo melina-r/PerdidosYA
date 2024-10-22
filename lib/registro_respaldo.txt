@@ -23,7 +23,7 @@ class RegisterPage extends StatelessWidget {
             TextField(
               controller: nameController,
               decoration: const InputDecoration(
-                labelText: 'Nombre',
+                labelText: 'Usuario',
               ),
             ),
             TextField(
@@ -79,9 +79,9 @@ class RegisterPage extends StatelessWidget {
     }
 
     await FirebaseFirestore.instance.collection('users').add({
-      'nombre': name,
+      'username': name,
       'email': email,
-      'contrasena': password,
+      'password': password,
       'zonas': [],
       'mascotas': [],
     });
