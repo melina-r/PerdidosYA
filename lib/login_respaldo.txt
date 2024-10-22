@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registro.dart'; 
 import 'inicio.dart'; 
+import 'users.dart';
 
 class LoginPage extends StatelessWidget {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   LoginPage({super.key});
@@ -21,9 +22,9 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: emailController,
+              controller: usernameController,
               decoration: const InputDecoration(
-                labelText: 'Email',
+                labelText: 'Usuario',
               ),
             ),
             TextField(
@@ -37,7 +38,7 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 _loginUser(
-                  emailController.text,
+                  usernameController.text,
                   passwordController.text,
                   context,
                 );
@@ -59,20 +60,30 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void _loginUser(String email, String password, BuildContext context) async {
+  void _loginUser(String username, String password, BuildContext context) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('email', isEqualTo: email)
-        .where('contrasena', isEqualTo: password)
+        .where('username', isEqualTo: username)
+        .where('password', isEqualTo: password)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
+
+      var userDoc = querySnapshot.docs.first;
+      User user = User(
+        username: userDoc['username'],
+        email: userDoc['email'],
+        password: userDoc['password'],
+        pets: List<String>.from(userDoc['mascotas']),
+        zones: List<String>.from(userDoc['zonas']),
+      );
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Inicio()), 
+        MaterialPageRoute(builder: (context) => Inicio(user: user,)), 
       );
     } else {
-      _showErrorDialog(context, 'El correo electrónico o la contraseña no son correctos.');
+      _showErrorDialog(context, 'El usuario o la contraseña no son correctos.');
     }
   }
 
