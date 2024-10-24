@@ -5,7 +5,7 @@ import 'users.dart'; // Asegúrate de importar la clase User
 class Inicio extends StatefulWidget {
   final User user;
 
-  Inicio({required this.user});
+  const Inicio({required this.user});
 
   @override
   _InicioState createState() => _InicioState();
