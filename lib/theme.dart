@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-final Color colorPrincipalUno = Color(0x00ff9f1c);
-final Color colorSecundarioUno = Color(0x00ffbf69);
-final Color colorTerciario = Color(0x00ffffff);
-final Color colorSecundarioDos = Color(0x00cbf3f0);
-final Color colorPrincipalDos = Color(0x002ec4b6);
+final Color colorPrincipalUno = Color.fromARGB(255, 255, 159, 28);
+final Color colorSecundarioUno = Color.fromARGB(255, 255, 191, 105);
+final Color colorTerciario = Color.fromARGB(255, 255, 255, 255);
+final Color colorSecundarioDos = Color.fromARGB(255, 203, 243, 240);
+final Color colorPrincipalDos = Color.fromARGB(255, 46, 196, 182);
 
