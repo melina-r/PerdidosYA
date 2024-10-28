@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io'; // Para manejar los archivos locales
+import 'dart:io';
+
+import 'package:perdidos_ya/theme.dart'; // Para manejar los archivos locales
 
 class ProfilePicture extends StatefulWidget {
   final String username;
@@ -37,14 +39,14 @@ class _ProfilePictureState extends State<ProfilePicture> {
           child: CircleAvatar(
             radius: 50,
             backgroundImage: _image != null ? FileImage(_image!) : null,
-            backgroundColor: Colors.lightBlue,
+            backgroundColor: colorPrincipalDos,
             child: _image == null
                 ? Text(
                     widget.username[0], // Mostrar la inicial si no hay imagen
                     style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: colorTerciario,
                     ),
                   )
                 : null,
