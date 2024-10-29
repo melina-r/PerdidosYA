@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:perdidos_ya/theme.dart';
-import 'users.dart'; // Asegúrate de importar la clase User
+import 'users.dart'; 
+import 'profile.dart';
 
 class Inicio extends StatefulWidget {
   final User user;
@@ -16,17 +17,21 @@ class _InicioState extends State<Inicio> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    if (index == 2) {                     //"Agregar"
-      _mostrarDialogoAgregarAnuncio();
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
+  if (index == 2) { // "Agregar"
+    _mostrarDialogoAgregarAnuncio();
+  } else if (index == 4) { // "Perfil"
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ProfilePage()),
+    );
+  } else {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
+}
 
   void _agregarAnuncio(String titulo, String descripcion) {
-    // Guardar el anuncio en Firestore con una marca de tiempo
     FirebaseFirestore.instance.collection('alerts').add({
       'user': widget.user.username,
       'titulo': titulo,
