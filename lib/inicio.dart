@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:perdidos_ya/theme.dart';
 import 'users.dart'; // Asegúrate de importar la clase User
 
 class Inicio extends StatefulWidget {
   final User user;
 
-  Inicio({required this.user});
+  const Inicio({required this.user});
 
   @override
   _InicioState createState() => _InicioState();
@@ -87,7 +88,7 @@ class _InicioState extends State<Inicio> {
         title: Text('Inicio'),
         automaticallyImplyLeading: false,
       ),
-      backgroundColor: const Color.fromARGB(255, 251, 244, 255),    //Cambiar color
+      backgroundColor: colorTerciario,    //Cambiar color
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('alerts')
@@ -150,7 +151,7 @@ class _InicioState extends State<Inicio> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: colorSecundarioUno,
         onTap: _onItemTapped,
       ),
     );
