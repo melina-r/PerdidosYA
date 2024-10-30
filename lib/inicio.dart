@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'users.dart'; // Asegúrate de importar la clase User
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Inicio extends StatefulWidget {
   final User user;
@@ -26,7 +27,7 @@ class _InicioState extends State<Inicio> {
     }
   }
 
-  void _agregarAnuncio(String titulo, String descripcion, String zona, String? especie, String raza, int tipoAnuncio) {
+  void _agregarAnuncio(String titulo, String descripcion, String zona, String especie, String raza, int tipoAnuncio) {
     String tablaBaseDeDatos = '';
     if(tipoAnuncio == this.perdido){
         tablaBaseDeDatos = 'Mascotas perdidas';
@@ -45,44 +46,86 @@ class _InicioState extends State<Inicio> {
     });
   }
 
+
   void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) {
     String titulo = '';
     String descripcion = '';
     String raza = '';
     String zona = '';
-    String? _especieSeleccionada;
+    String especieSeleccionada = '';
     final List<String> especies = ['Gato','Perro'];
+    bool botonGatoPresionado = false;
+    bool botonPerroPresionado = false;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Agregar Anuncio'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: 'Título'),
-                onChanged: (value) {
-                  titulo = value;
-                },
-              ),
-            DropdownButton<String>(
-              hint: Text('Selecciona una opción'),
-              value: _especieSeleccionada, // Valor actual
-              onChanged: (String? newValue) {
-                setState(() {
-                  print(newValue);
-                  _especieSeleccionada = newValue; // Actualiza el valor seleccionado
-                });
-              },
-              items: especies.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
+          content:SingleChildScrollView(
+            child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setDialogState) {
+                    return  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(labelText: 'Título'),
+                        onChanged: (value) {
+                          titulo = value;
+                        },
+                      ),
+                    Center(
+                    child: Container(
+                      padding: EdgeInsets.all(5.0), // Espaciado interno
+                      decoration: BoxDecoration(
+                        color: Colors.transparent, // Color de fondo 
+                      ),
+                      child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround, // Espacio entre botones
+                      children: [
+                        Container(
+                          width: 80, // Ancho del primer botón
+                          height:80,
+                          child: IconButton(
+                            icon: Icon(FontAwesomeIcons.cat),
+                            onPressed: () {
+                              setDialogState(() {
+                                botonGatoPresionado = true;
+                                botonPerroPresionado = false;
+                                especieSeleccionada = especies[0];
+                              });
+                            },
+                            style: IconButton.styleFrom(
+                              backgroundColor: botonGatoPresionado?Colors.blue:Colors.amber
+                            ),
+                            splashColor: Colors.red.withOpacity(0.5),
+                            highlightColor: Colors.red.withOpacity(0.3),   
+                          ),
+                        ),
+                        Container(
+                          width: 80, // Ancho del primer botón
+                          height: 80,
+                          child: IconButton(
+                            icon: Icon(FontAwesomeIcons.dog),
+                            onPressed: () {
+                              setDialogState(() {
+                                botonGatoPresionado = false;
+                                botonPerroPresionado = true;
+                                especieSeleccionada = especies[1];
+                              });
+                            },
+                            style: IconButton.styleFrom(
+                              backgroundColor: botonPerroPresionado?Colors.blue:Colors.amber
+                            ),
+                            
+                            splashColor: Colors.red.withOpacity(0.5),
+                            highlightColor: Colors.red.withOpacity(0.3), 
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               TextField(
                 decoration: InputDecoration(labelText: 'Raza'),
                 onChanged: (value) {
@@ -102,7 +145,10 @@ class _InicioState extends State<Inicio> {
                 },
               ),
             ],
-          ),
+          );
+        }
+        ),
+      ),
           actions: [
             TextButton(
               onPressed: () {
@@ -112,7 +158,7 @@ class _InicioState extends State<Inicio> {
             ),
             TextButton(
               onPressed: () {
-                _agregarAnuncio(titulo, descripcion, zona, _especieSeleccionada, raza, tipoAnuncio);
+                _agregarAnuncio(titulo, descripcion, zona, especieSeleccionada, raza, tipoAnuncio);
                 Navigator.of(context).pop();
               },
               child: const Text('Agregar'),
@@ -123,21 +169,40 @@ class _InicioState extends State<Inicio> {
     );
   }
 
+Widget anuncioShowAlert(String titulo, String descripcion, String zona, String especie, String raza) {
+  return Container(
+    height: 300.0,
+    width: 300.0,
+    child: ListView(
+      children: [
+        ListTile(
+          title: Text('Zona:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+          subtitle: Text(zona),
+        ),
+        ListTile(
+          title: Text('Especie:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+          subtitle: Text(especie),
+        ),
+        ListTile(
+          title: Text('Raza:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+          subtitle: Text(raza),
+        ),
+        ListTile(
+          title: Text('Descripción:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+          subtitle: Text(descripcion),
+        ),
+      ],
+    )
+  );
+}
+
 void _mostrarAnuncio(String titulo, String descripcion, String zona, String especie, String raza) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(titulo),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(children: [Text('Especie: ', style: TextStyle(fontWeight: FontWeight.bold,),),Text(especie)]),
-              Row(children: [Text('Raza: ', style: TextStyle(fontWeight: FontWeight.bold,),),Text(raza)]),
-              Row(children: [Text('Codigo Postal: ', style: TextStyle(fontWeight: FontWeight.bold,),),Text(zona)]),
-              Row(children: [Text('Descripción: ', style: TextStyle(fontWeight: FontWeight.bold,),),Text(descripcion)]),
-            ],
-          ),
+          title: Center(child: Text(titulo),),
+          content:anuncioShowAlert(titulo, descripcion, zona, especie, raza),
           actions: [
             TextButton(
               onPressed: () {
@@ -165,17 +230,8 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.amber,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-      ),
-      title: Text('Inicio'),
+        title: Center(child: Text('Inicio'),),
+        automaticallyImplyLeading: false,
       ),
       backgroundColor: Colors.white,    //Cambiar color
       body:
@@ -270,68 +326,30 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
         ),
       ]
       ),
-      drawer: drawerMenu(context),
+       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Mapa',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            label: 'Mensajes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amberAccent,
+        onTap: _onItemTapped,
+      ),
     );
   }
-}
-
-
-
-
-Drawer drawerMenu (context){
-  return Drawer( // El Drawer
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-              Container(
-                height: 40,
-                color: Colors.transparent, // Color de fondo del encabezado
-              ),
-              Container(
-                  width: 150, // Ancho del primer botón
-                  height: 100,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      print('Botón presionado');
-                    },
-                    child: Text('Perfil', textAlign: TextAlign.center,),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      shape: CircleBorder(),
-                    ),  
-                  ),
-                ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Inicio'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.map),
-              title: Text('Mapa'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.message),
-              title: Text('Mensajes'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Cerrar Sesión'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      );
 }
