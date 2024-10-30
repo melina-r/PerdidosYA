@@ -26,7 +26,7 @@ class _InicioState extends State<Inicio> {
   final String queryLista = "";
 
   void _onItemTapped(int index) {
-  if (index == 4) { // "Perfil"
+  if (index == 3) { // "Perfil"
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ProfilePage()),
