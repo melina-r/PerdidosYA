@@ -19,7 +19,11 @@ class Inicio extends StatefulWidget {
 class _InicioState extends State<Inicio> {
   int _selectedIndex = 0;
   final int perdido = 0;
-  final int encontrado = 0;
+  final int encontrado = 1;
+  final bool mostrarBasePerdidos = true;
+  final bool mostrarBaseEncontrados = true;
+  final String baseMostrada = "Mascotas perdidas";
+  final String queryLista = "";
 
   void _onItemTapped(int index) {
   if (index == 4) { // "Perfil"
@@ -37,10 +41,13 @@ class _InicioState extends State<Inicio> {
 
   void _agregarAnuncio(String titulo, String descripcion, String zona, String especie, String raza, int tipoAnuncio) {
     String tablaBaseDeDatos = '';
-    if(tipoAnuncio == this.perdido){
+    if(tipoAnuncio == perdido){
         tablaBaseDeDatos = 'Mascotas perdidas';
     }
-    else if(tipoAnuncio == this.encontrado){
+    else if(tipoAnuncio == encontrado){
+      ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Agrgando a encontrados')),
+                );
       tablaBaseDeDatos = 'Mascotas encontradas';
     }
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add({
@@ -104,10 +111,10 @@ class _InicioState extends State<Inicio> {
                               });
                             },
                             style: IconButton.styleFrom(
-                              backgroundColor: botonGatoPresionado?Colors.blue:Colors.amber
+                              backgroundColor: botonGatoPresionado?colorPrincipalDos:colorSecundarioUno
                             ),
-                            splashColor: Colors.red.withOpacity(0.5),
-                            highlightColor: Colors.red.withOpacity(0.3),   
+                            splashColor: colorTerciario.withOpacity(0.5),
+                            highlightColor: colorTerciario.withOpacity(0.3),   
                           ),
                         ),
                         Container(
@@ -123,11 +130,11 @@ class _InicioState extends State<Inicio> {
                               });
                             },
                             style: IconButton.styleFrom(
-                              backgroundColor: botonPerroPresionado?Colors.blue:Colors.amber
+                              backgroundColor: botonPerroPresionado?colorPrincipalDos:colorSecundarioUno
                             ),
                             
-                            splashColor: Colors.red.withOpacity(0.5),
-                            highlightColor: Colors.red.withOpacity(0.3), 
+                            splashColor: colorTerciario.withOpacity(0.5),
+                            highlightColor: colorTerciario.withOpacity(0.3), 
                           ),
                         ),
                       ],
@@ -209,6 +216,7 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: colorTerciario,
           title: Center(child: Text(titulo),),
           content:anuncioShowAlert(titulo, descripcion, zona, especie, raza),
           actions: [
@@ -230,14 +238,135 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
     );
   }
 
+ void _mostrarFiltros() {
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: colorTerciario,
+          title: Center(child: Text('hola'),),
+          content:Center(child: Text('hola'),),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Mandar Mensaje'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  
+
+Widget listasCombinadas() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('Mascotas perdidas')
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
+      builder: (context, lostSnapshot) {
+        if (!lostSnapshot.hasData) {
+          return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
+        }
+
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('Mascotas encontradas')
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          builder: (context, foundSnapshot) {
+            if (!foundSnapshot.hasData) {
+              return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
+            }
+            List<QueryDocumentSnapshot<Object?>>  lostAlerts = [];
+            List<QueryDocumentSnapshot<Object?>> foundAlerts = [];
+            if(mostrarBasePerdidos){
+              lostAlerts = lostSnapshot.data!.docs;
+            }
+            if(mostrarBaseEncontrados){
+              foundAlerts = foundSnapshot.data!.docs;
+            }
+
+            List<Widget> combinedAlerts = [];
+
+            // Agregar mascotas perdidas
+            for (var alert in lostAlerts) {
+              final alertData = alert.data() as Map<String, dynamic>;
+              final titulo = alertData['titulo'];
+              final descripcion = alertData['descripcion'];
+              final raza = alertData['raza'];
+              final especie = alertData['especie'];
+              final zona = alertData['Zona'];
+              final user = alertData['user'];
+
+              combinedAlerts.add(
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: ListTile(
+                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(titulo),
+                      onTap: (){
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            // Agregar mascotas encontradas
+            for (var alert in foundAlerts) {
+              final alertData = alert.data() as Map<String, dynamic>;
+              final titulo = alertData['titulo'];
+              final descripcion = alertData['descripcion'];
+              final raza = alertData['raza'];
+              final especie = alertData['especie'];
+              final zona = alertData['Zona'];
+              final user = alertData['user'];  
+
+              combinedAlerts.add(
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: ListTile(
+                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(titulo),
+                      onTap: (){
+                        
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
+                    ),
+                  ),
+                ),
+              );
+            }
+            return ListView(children: combinedAlerts); // **Retorno de la lista combinada**
+          },
+        );
+      },
+    );
+  }
+
+
+
+Expanded listasFiltradas(){
+      return Expanded(child: listasCombinadas());
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorTerciario,
+        backgroundColor: colorPrincipalUno ,
         title: Center(child: Text('Inicio'),),
         automaticallyImplyLeading: false,
       ),
@@ -263,8 +392,8 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
                     },
                     child: Text('Mascota Perdida', textAlign: TextAlign.center),// Texto del botón
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Color de fondo
-                      foregroundColor: Colors.white, // Color del texto
+                      backgroundColor: colorSecundarioUno, // Color de fondo
+                      foregroundColor: Colors.black, // Color del texto
                       shape: CircleBorder(),
                     ),  
                   ),
@@ -278,8 +407,8 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
                     },
                     child: Text('Mascota Encontrada', textAlign: TextAlign.center,),// Texto del botón
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Color de fondo
-                      foregroundColor: Colors.white, // Color del texto
+                      backgroundColor: colorSecundarioUno, // Color de fondo
+                      foregroundColor: Colors.black, // Color del texto
                       shape: CircleBorder(),
                     ),  
                   ),
@@ -288,50 +417,19 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
             ),
           ),
         ),
-          Expanded(child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('Mascotas perdidas')
-                .orderBy('timestamp', descending: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
-
-              final alerts = snapshot.data!.docs;
-
-              List<Widget> alertWidgets = [];
-              for (var alert in alerts) {
-                final alertData = alert.data() as Map<String, dynamic>;
-                final titulo = alertData['titulo'];
-                final descripcion = alertData['descripcion'];
-                final raza = alertData['raza'];
-                final especie = alertData['especie'];
-                final zona = alertData['Zona'];
-                final user = alertData['user'];
-
-
-                final alertWidget = Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    child: ListTile(
-                      title: Text('$user: $titulo', style: TextStyle(fontWeight: FontWeight.bold)),
-                      onTap: (){
-                        
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
-                    ),
-                  ),
-                );
-
-                alertWidgets.add(alertWidget);
-              }
-
-              return ListView(
-                children: alertWidgets,
-              );
-            },
-          ),
+        Align(
+            alignment: Alignment.bottomLeft, // Alinea el botón a la izquierda
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FloatingActionButton(
+                onPressed: () {
+                _mostrarFiltros();
+              },
+            child: Icon(Icons.filter_list),
+            ),
+          )
         ),
+        listasFiltradas(),//ACA VA LISTA FILTRADA
       ]
       ),
        bottomNavigationBar: BottomNavigationBar(
@@ -355,7 +453,7 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: colorSecundarioUno,
+        selectedItemColor: colorPrincipalDos,
         onTap: _onItemTapped,
       ),
     );
