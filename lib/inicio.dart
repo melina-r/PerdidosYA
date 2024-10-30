@@ -22,9 +22,7 @@ class _InicioState extends State<Inicio> {
   final int encontrado = 0;
 
   void _onItemTapped(int index) {
-  if (index == 2) { // "Agregar"
-    _mostrarDialogoAgregarAnuncio();
-  } else if (index == 4) { // "Perfil"
+  if (index == 4) { // "Perfil"
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ProfilePage()),
