@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'users.dart'; // Asegúrate de importar la clase User
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'users.dart'; 
+import 'profile.dart';
+import 'users.dart'; // Asegúrate de importar la clase User
+
 
 class Inicio extends StatefulWidget {
   final User user;
 
-  Inicio({required this.user});
+  const Inicio({required this.user});
 
   @override
   _InicioState createState() => _InicioState();
@@ -18,6 +20,21 @@ class _InicioState extends State<Inicio> {
   int _selectedIndex = 0;
   final int perdido = 0;
   final int encontrado = 0;
+
+  void _onItemTapped(int index) {
+  if (index == 2) { // "Agregar"
+    _mostrarDialogoAgregarAnuncio();
+  } else if (index == 4) { // "Perfil"
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ProfilePage()),
+    );
+  } else {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+}
 
 
   void _agregarAnuncio(String titulo, String descripcion, String zona, String especie, String raza, int tipoAnuncio) {
@@ -226,7 +243,7 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
         title: Center(child: Text('Inicio'),),
         automaticallyImplyLeading: false,
       ),
-      backgroundColor: Colors.white,    //Cambiar color
+      backgroundColor: colorTerciario,    //Cambiar color  //Cambiar color
       body:
       Column(
         children: [
@@ -341,6 +358,7 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: colorSecundarioUno,
+        onTap: _onItemTapped,
       ),
     );
   }
