@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'users.dart'; 
 import 'profile.dart';
+import 'map.dart';
 
 class Inicio extends StatefulWidget {
   final User user;
@@ -19,7 +20,12 @@ class _InicioState extends State<Inicio> {
   void _onItemTapped(int index) {
   if (index == 2) { // "Agregar"
     _mostrarDialogoAgregarAnuncio();
-  } else if (index == 4) { // "Perfil"
+  } else if (index == 1) {  //"Mapa"
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MapPage()),
+      );
+  }else if (index == 4) { // "Perfil"
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ProfilePage()),
