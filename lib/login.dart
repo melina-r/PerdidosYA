@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'objects/pet.dart';
 import 'registro.dart'; 
 import 'inicio.dart'; 
 import 'users.dart';
@@ -74,7 +75,18 @@ class LoginPage extends StatelessWidget {
         username: userDoc['username'],
         email: userDoc['email'],
         password: userDoc['password'],
-        pets: List<String>.from(userDoc['mascotas']),
+        pets: List<Pet>.from([            
+            for (var mascota in userDoc['mascotas']) {
+              Pet(
+                age: mascota['age'],
+                size: mascota['size'],
+                name: mascota['name'],
+                color: mascota['color'],
+                description: mascota['description'],
+              )
+            }
+          ]
+          ),
         zones: List<String>.from(userDoc['zonas']),
       );
 

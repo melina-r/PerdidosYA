@@ -29,7 +29,7 @@ class _InicioState extends State<Inicio> {
   if (index == 3) { // "Perfil"
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ProfilePage()),
+      MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)),
     );
   } else {
     setState(() {
