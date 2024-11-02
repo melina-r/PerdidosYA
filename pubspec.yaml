@@ -17,7 +17,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.0.0
   font_awesome_flutter: ^10.2.0
-  
+  google_maps_flutter: ^2.6.0
 
 dev_dependencies:
   flutter_test:
