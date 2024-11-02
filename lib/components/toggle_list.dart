@@ -17,9 +17,10 @@ class ToggleList extends StatelessWidget {
     return 
     
     ExpansionTile(
-      leading: Icon(section.icon),
-      title: Text(section.title),
-      iconColor: colorPrincipalUno,
+      leading: Icon(section.icon, size: 30),
+      title: Text(section.title, style: const TextStyle(fontSize: 20)),
+      iconColor: colorPrincipalDos,
+      collapsedIconColor: colorPrincipalUno,
       children: section.content,
     );
   }

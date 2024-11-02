@@ -9,6 +9,7 @@ class User {
   List<Reporte> reportes = [];
   List<String> zones;
   String icon = 'assets/images/user.png';
+  bool notificaciones = true;
 
-  User({required this.username, required this.email, required this.password, required this.pets, required this.zones});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes});
 }

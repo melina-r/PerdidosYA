@@ -12,7 +12,7 @@ class CardDetails extends ListTile {
   
   @override
   ListTile build(BuildContext context) {
-    return ListTile(title: Text(cardTitle), onTap: () {_showDetailCard(context);},);
+    return ListTile(title: Text(cardTitle, style: TextStyle(fontSize: 20),), contentPadding: EdgeInsets.only(left: 40), leading: Icon(Icons.arrow_outward), onTap: () {_showDetailCard(context);},);
   }
 
   void _showDetailCard(BuildContext context) {
@@ -60,7 +60,7 @@ class PetDetails extends CardDetails {
       Text("Tamaño: ${_getStringValue(petInfo.size)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
       Text("Color: ${petInfo.color}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       SizedBox(height: 20),
-      Text((petInfo.description != null) ? "Descripción: ${petInfo.description}" : "Sin descripción.", style: TextStyle(fontSize: 18),), 
+      Text((petInfo.description != null) ? "${petInfo.description}" : "Sin descripción.", style: TextStyle(fontSize: 18),), 
     ];
   }
   

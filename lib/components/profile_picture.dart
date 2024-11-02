@@ -36,20 +36,44 @@ class _ProfilePictureState extends State<ProfilePicture> {
       children: [
         GestureDetector(
           onTap: _pickImage,
-          child: CircleAvatar(
-            radius: 50,
-            backgroundImage: _image != null ? FileImage(_image!) : null,
-            backgroundColor: colorPrincipalDos,
-            child: _image == null
+          child: Stack(
+            children: [
+              CircleAvatar(
+              radius: 75,
+              backgroundImage: _image != null ? FileImage(_image!) : null,
+              backgroundColor: colorPrincipalDos,
+              child: _image == null
                 ? Text(
-                    widget.username[0], // Mostrar la inicial si no hay imagen
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: colorTerciario,
-                    ),
+                  widget.username[0], // Mostrar la inicial si no hay imagen
+                  style: TextStyle(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    color: colorTerciario,
+                  ),
                   )
                 : null,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: colorSecundarioUno
+                  ),
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Icon(
+                      Icons.edit,
+                      color: colorTerciario,
+                      size: 30,
+                    ),
+                  )
+                ),
+              )
+            ],
           ),
         ),
       ],
