@@ -4,8 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'users.dart'; 
 import 'profile.dart';
-import 'users.dart'; // Asegúrate de importar la clase User
-
+import 'map.dart';
 
 class Inicio extends StatefulWidget {
   final User user;
@@ -30,6 +29,11 @@ class _InicioState extends State<Inicio> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)),
+    );
+  } else if (index == 1) { // "Perfil"
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MapPage()),
     );
   } else {
     setState(() {
