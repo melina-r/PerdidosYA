@@ -20,8 +20,8 @@ class _InicioState extends State<Inicio> {
   int _selectedIndex = 0;
   final int perdido = 0;
   final int encontrado = 1;
-  final bool mostrarBasePerdidos = true;
-  final bool mostrarBaseEncontrados = true;
+  bool mostrarBasePerdidos = true;
+  bool mostrarBaseEncontrados = true;
   final String baseMostrada = "Mascotas perdidas";
   final String queryLista = "";
 
@@ -245,22 +245,51 @@ void _mostrarAnuncio(String titulo, String descripcion, String zona, String espe
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: colorTerciario,
-          title: Center(child: Text('hola'),),
-          content:Center(child: Text('hola'),),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Mandar Mensaje'),
-            ),
-          ],
+          title: Center(child: Text('Filtrar'),),
+          content:Container(
+            height: 200,
+            child: Center(
+            child:StatefulBuilder(
+              builder: (BuildContext context, StateSetter setDialogState) {
+                      return  Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("Mostrar mascotas encontradas:"),
+                        Switch(
+                        value: mostrarBaseEncontrados,
+                        onChanged: (bool value) {
+                          setDialogState(() {
+                            this.mostrarBaseEncontrados = value;
+                          });
+                          setState(() {
+                            this.mostrarBaseEncontrados = value;
+                          });
+                        },
+                        ),
+                        Text("Mostrar mascotas perdidas:"),
+                        Switch(
+                        value: mostrarBasePerdidos,
+                        onChanged: (bool value) {
+                          setDialogState(() {
+                            this.mostrarBasePerdidos= value;
+                          });
+                          setState(() {
+                            this.mostrarBasePerdidos = value;
+                          });
+                        },
+                        ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cerrar'),
+                      ),
+                        ],
+                      );
+                    },
+                  ),
+              ),
+          ),
         );
       },
     );
@@ -307,19 +336,18 @@ Widget listasCombinadas() {
               final especie = alertData['especie'];
               final zona = alertData['Zona'];
               final user = alertData['user'];
-
               combinedAlerts.add(
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    child: ListTile(
-                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(titulo),
-                      onTap: (){
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
-                    ),
-                  ),
-                ),
+                 Padding(
+                   padding: const EdgeInsets.all(8.0),
+                   child: Card(
+                     child: ListTile(
+                       title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold)),
+                       subtitle: Text(user),
+                       onTap: (){
+                         _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
+                     ),
+                   ),
+                 ),
               );
             }
 
@@ -338,10 +366,9 @@ Widget listasCombinadas() {
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
                     child: ListTile(
-                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(titulo),
+                      title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(user),
                       onTap: (){
-                        
                         _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
                     ),
                   ),
@@ -405,7 +432,7 @@ Expanded listasFiltradas(){
                     onPressed: () {
                       _mostrarDialogoAgregarAnuncio(this.encontrado);
                     },
-                    child: Text('Mascota Encontrada', textAlign: TextAlign.center,),// Texto del botón
+                    child: Text('Mascota Encontrada', textAlign: TextAlign.center,),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colorSecundarioUno, // Color de fondo
                       foregroundColor: Colors.black, // Color del texto
