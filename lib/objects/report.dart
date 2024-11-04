@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Reporte {
   String titulo;
   String zona;
   String raza;
   String especie;
   String descripcion;
-  String timestamp;
+  final timestamp;
   String user;
 
   Reporte({required this.titulo, required this.descripcion, required this.zona, required this.raza, required this.especie, required this.timestamp, required this.user});

@@ -72,11 +72,20 @@ class LoginPage extends StatelessWidget {
     if (querySnapshot.docs.isNotEmpty) {
 
       var userDoc = querySnapshot.docs.first;
-      var perdidosSnapshot = await FirebaseFirestore.instance.collection("Mascotas perdidas").where('username', isEqualTo: username).get();
-      var encontradosSnapshot = await FirebaseFirestore.instance.collection("Mascotas encontradas").where('username', isEqualTo: username).get();
+      var perdidosSnapshot = await FirebaseFirestore.instance
+          .collection('Mascotas perdidas')
+          .where('user', isEqualTo: username)
+          .get();
+      var encontradosSnapshot = await FirebaseFirestore.instance
+          .collection('Mascotas encontradas')
+          .where('user', isEqualTo: username)
+          .get();
+
       var perdidos = perdidosSnapshot.docs;
       var encontrados = encontradosSnapshot.docs;
+
       var reportesTotales = perdidos + encontrados;
+
       User user = User(
         username: userDoc['username'],
         email: userDoc['email'],

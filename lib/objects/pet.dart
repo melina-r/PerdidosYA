@@ -1,11 +1,13 @@
 enum SizePet { chico, mediano, grande }
-enum AgePet { bebe, adulto, anciano }
+enum AgePet { cachorro, adulto, anciano }
 
 class Pet {
   final AgePet age;
   final SizePet size;
   final String name;
   final String color;
+  final String raza;
+  final String especie;
   final String? description;
 
   Pet({
@@ -13,6 +15,8 @@ class Pet {
     required this.size,
     required this.name,
     required this.color,
+    required this.raza,
+    required this.especie,
     this.description
   });
 
@@ -23,6 +27,8 @@ class Pet {
       size: _sizePetFromInt(mascota['size'] ?? 0),
       name: mascota['name'] ?? '',
       color: mascota['color'] ?? '',
+      raza: mascota['raza'] ?? '',
+      especie: mascota['especie'] ?? '',
       description: mascota['description'] ?? '',
     );
   }
@@ -31,7 +37,7 @@ class Pet {
   static AgePet _agePetFromInt(int value) {
     switch (value) {
       case 0:
-        return AgePet.bebe;
+        return AgePet.cachorro;
       case 1:
         return AgePet.adulto;
       case 2:
