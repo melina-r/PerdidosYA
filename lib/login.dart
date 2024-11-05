@@ -26,7 +26,7 @@ class LoginPage extends StatelessWidget {
             TextField(
               controller: usernameController,
               decoration: const InputDecoration(
-                labelText: 'Usuario',
+                labelText: 'Email',
               ),
             ),
             TextField(
