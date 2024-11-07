@@ -10,12 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^0.8.4+1
   firebase_core: ^2.10.0
-  firebase_auth: ^4.6.0
+  firebase_auth: ^4.9.0
   cloud_firestore: ^4.5.0
   cupertino_icons: ^1.0.8
   provider: ^6.0.0
-  
+  font_awesome_flutter: ^10.2.0
+  google_maps_flutter: ^2.6.0
+  geocoding: ^2.0.4
 
 dev_dependencies:
   flutter_test:
