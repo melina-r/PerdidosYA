@@ -7,7 +7,7 @@ import 'profile.dart';
 import 'map.dart';
 
 class Inicio extends StatefulWidget {
-  final User user;
+  final Users user;
 
   const Inicio({required this.user});
 
@@ -31,6 +31,11 @@ class _InicioState extends State<Inicio> {
       MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)),
     );
   } else if (index == 1) { // "Perfil"
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MapPage()),
+    );
+  } else if (index == 1) { // "Mapa"
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => MapPage()),

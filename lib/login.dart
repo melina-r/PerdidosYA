@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:perdidos_ya/objects/report.dart';
 import 'objects/pet.dart';
 import 'registro.dart'; 
@@ -7,6 +8,7 @@ import 'inicio.dart';
 import 'users.dart';
 
 class LoginPage extends StatelessWidget {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -26,7 +28,7 @@ class LoginPage extends StatelessWidget {
             TextField(
               controller: usernameController,
               decoration: const InputDecoration(
-                labelText: 'Usuario',
+                labelText: 'Email',
               ),
             ),
             TextField(
@@ -62,16 +64,28 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void _loginUser(String username, String password, BuildContext context) async {
+  void _loginUser(String email, String password, BuildContext context) async {
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    }catch (e) {
+      if (e is FirebaseAuthException) {
+       _showErrorDialog(context, 'Error al iniciar sesión: email o contraseña incorrectos.');
+        return;
+      }
+    }  
+    
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('username', isEqualTo: username)
+        .where('email', isEqualTo: email)
         .where('password', isEqualTo: password)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-
       var userDoc = querySnapshot.docs.first;
+
       var perdidosSnapshot = await FirebaseFirestore.instance
           .collection('Mascotas perdidas')
           .where('user', isEqualTo: username)
@@ -99,8 +113,6 @@ class LoginPage extends StatelessWidget {
         context,
         MaterialPageRoute(builder: (context) => Inicio(user: user,)), 
       );
-    } else {
-      _showErrorDialog(context, 'El usuario o la contraseña no son correctos.');
     }
   }
 

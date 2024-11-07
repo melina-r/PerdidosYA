@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart'; 
 
 class RegisterPage extends StatelessWidget {
+  final List<String> validEmails = ['@hotmail.com','@gmail.com'];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -58,13 +61,21 @@ class RegisterPage extends StatelessWidget {
   }
 
   void _registerUser(String name, String email, String password, BuildContext context) async {
+    if (_invalidEmail(email)) {
+      _showMessage(context, 'Email invalido.');
+      return;
+    }else if (_invalidPassword(password)) {
+      _showMessage(context, 'La contraseña es demasiado corta, debe tener al menos 6 caracteres.');
+      return;
+    }
+    
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('email', isEqualTo: email)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      _showErrorDialog(context, 'El correo electrónico ya está en uso.');
+      _showMessage(context, 'El correo electrónico ya está en uso.');
       return;
     }
 
@@ -74,9 +85,10 @@ class RegisterPage extends StatelessWidget {
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      _showErrorDialog(context, 'El nombre de usuario ya está en uso.');
+      _showMessage(context, 'El nombre de usuario ya está en uso.');
       return;
     }
+  
 
     await FirebaseFirestore.instance.collection('users').add({
       'username': name,
@@ -90,14 +102,19 @@ class RegisterPage extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (context) => LoginPage()), 
     );
+
+    await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
   }
 
-  void _showErrorDialog(BuildContext context, String message) {
+  void _showMessage(BuildContext context, String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
+          title: Text('Error'),
           content: Text(message),
           actions: [
             TextButton(
@@ -110,5 +127,18 @@ class RegisterPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  bool _invalidEmail(String email){
+    for (String substring in validEmails) {
+    if (email.contains(substring)) {
+      return false;
+    }
+  }
+  return true;
+  }
+
+  bool _invalidPassword(String password){
+    return password.length < 6;
   }
 }
