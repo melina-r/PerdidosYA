@@ -1,12 +1,14 @@
 
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
+import 'package:perdidos_ya/profile.dart';
 import 'package:perdidos_ya/theme.dart';
-import 'package:perdidos_ya/users.dart';
+import 'package:perdidos_ya/users.dart' as users;
 
 class ProfileSettings extends StatefulWidget {
-  final User user;
+  final users.User user;
 
   const ProfileSettings({super.key, required this.user});
 
@@ -15,12 +17,9 @@ class ProfileSettings extends StatefulWidget {
 }
 
 class _ProfileSettingsState extends State<ProfileSettings> {
-  late final User user;
-
   @override
   void initState() {
     super.initState();
-    user = widget.user;
   }
 
   @override
@@ -42,15 +41,11 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 content: [
                   ListTile(
                     title: Text('Username'),
-                    subtitle: Text(user.username),
+                    subtitle: Text(widget.user.username),
                     trailing: Icon(Icons.edit),
-                    onTap: () => _updateUsername(context),
-                  ),
-                  ListTile(
-                    title: Text('Password'),
-                    subtitle: Text('********'),
-                    trailing: Icon(Icons.edit),
-                    onTap: () => _editPassword(context),
+                    onTap: () {
+                      _updateUsername(context);
+                    }
                   ),
                   ListTile(
                     title: Text("Mascotas"),
@@ -95,11 +90,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   }
 
   void _updateUsername(BuildContext context) {
-    _showAlertDialog(context, "Modificar nombre de usuario", "nuevo nombre de usuario");
-  }
-
-  void _editPassword(BuildContext context) {
-    _showAlertDialog(context, "Modificar contraseña", "nueva contraseña");
+    _showAlertDialog(context, "Modificar nombre de usuario", "nuevo nombre de usuario", _changeUsername);
   }
 
   void _editPets(BuildContext context) {
@@ -119,7 +110,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                ...user.zones.map((zone) => ListTile(
+                ...widget.user.zones.map((zone) => ListTile(
                   title: Text(zone),
                   trailing: IconButton(
                     icon: Icon(Icons.close),
@@ -183,7 +174,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                ...user.pets.map((pet) => ListTile(
+                ...widget.user.pets.map((pet) => ListTile(
                   title: Text(pet.name),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -297,13 +288,15 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     );
   }
   
-  void _showAlertDialog(BuildContext context, String title, String hint) {
+  void _showAlertDialog(BuildContext context, String title, String hint, void Function(String) updateField) {
+    TextEditingController controller = TextEditingController();
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(title),
           content: TextField(
+            controller: controller,
             decoration: InputDecoration(hintText: hint),
           ),
           actions: [
@@ -313,8 +306,14 @@ class _ProfileSettingsState extends State<ProfileSettings> {
             ),
             TextButton(
               onPressed: () {
-                // Cambiar el username
-                Navigator.pop(context);
+                updateField(controller.text);
+                _updateDatabase(widget.user, "Nombre de usuario actualizado!", "Hubo un error. Intenta nuevamente.");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(user: widget.user,),
+                  ),
+                );
               },
               child: Text('Aceptar'),
             ),
@@ -322,6 +321,28 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         );
       },
     );
+  }
+
+  Future<void> _updateDatabase(users.User user, String successMessage, String errorMessage) async {
+    final userId = (await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: user.email).get()).docs.first.id;
+    FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(userId)                  
+                  .update(user.toMap())
+                  .then((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(successMessage)),
+                    );
+                  })
+                  .catchError((error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(errorMessage)),
+                    );
+                  });
+  }
+
+  void _changeUsername(String newUsername) {
+    widget.user.username = newUsername;
   }
 }
 

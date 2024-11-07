@@ -59,4 +59,42 @@ class Pet {
         throw ArgumentError("Valor inválido para SizePet: $value");
     }
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'age': _agePetToInt(age),
+      'size': _sizePetToInt(size),
+      'name': name,
+      'color': color,
+      'raza': raza,
+      'especie': especie,
+      'description': description,
+    };
+  }
+
+  static int _agePetToInt(AgePet age) {
+    switch (age) {
+      case AgePet.cachorro:
+        return 0;
+      case AgePet.adulto:
+        return 1;
+      case AgePet.anciano:
+        return 2;
+      default:
+        throw ArgumentError("Valor inválido para AgePet: $age");
+    }
+  }
+
+  static int _sizePetToInt(SizePet size) {
+    switch (size) {
+      case SizePet.chico:
+        return 0;
+      case SizePet.mediano:
+        return 1;
+      case SizePet.grande:
+        return 2;
+      default:
+        throw ArgumentError("Valor inválido para SizePet: $size");
+    }
+  }
 }

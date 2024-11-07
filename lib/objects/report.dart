@@ -22,4 +22,16 @@ class Reporte {
       user: reporte['user'],
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'titulo': titulo,
+      'zona': zona,
+      'raza': raza,
+      'especie': especie,
+      'descripcion': descripcion,
+      'timestamp': timestamp,
+      'user': user,
+    };
+  }
 }

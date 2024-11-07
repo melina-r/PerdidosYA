@@ -5,7 +5,7 @@ import 'package:perdidos_ya/objects/report.dart';
 import 'objects/pet.dart';
 import 'registro.dart'; 
 import 'inicio.dart'; 
-import 'users.dart';
+import 'users.dart' as users;
 
 class LoginPage extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -88,11 +88,11 @@ class LoginPage extends StatelessWidget {
 
       var perdidosSnapshot = await FirebaseFirestore.instance
           .collection('Mascotas perdidas')
-          .where('user', isEqualTo: username)
+          .where('user', isEqualTo: userDoc['username'])
           .get();
       var encontradosSnapshot = await FirebaseFirestore.instance
           .collection('Mascotas encontradas')
-          .where('user', isEqualTo: username)
+          .where('user', isEqualTo: userDoc['username'])
           .get();
 
       var perdidos = perdidosSnapshot.docs;
@@ -100,7 +100,7 @@ class LoginPage extends StatelessWidget {
 
       var reportesTotales = perdidos + encontrados;
 
-      User user = User(
+      users.User user = users.User(
         username: userDoc['username'],
         email: userDoc['email'],
         password: userDoc['password'],
