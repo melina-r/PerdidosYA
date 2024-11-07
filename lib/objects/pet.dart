@@ -2,13 +2,13 @@ enum SizePet { chico, mediano, grande }
 enum AgePet { cachorro, adulto, anciano }
 
 class Pet {
-  final AgePet age;
-  final SizePet size;
-  final String name;
-  final String color;
-  final String raza;
-  final String especie;
-  final String? description;
+  AgePet age;
+  SizePet size;
+  String name;
+  String color;
+  String raza;
+  String especie;
+  String? description;
 
   Pet({
     required this.age,
@@ -23,8 +23,8 @@ class Pet {
    // Método de fábrica para crear Pet desde el diccionario
   factory Pet.fromMap(Map<String, dynamic> mascota) {
     return Pet(
-      age: _agePetFromInt(mascota['age'] ?? 0),
-      size: _sizePetFromInt(mascota['size'] ?? 0),
+      age: agePetFromInt(mascota['age'] ?? 0),
+      size: sizePetFromInt(mascota['size'] ?? 0),
       name: mascota['name'] ?? '',
       color: mascota['color'] ?? '',
       raza: mascota['raza'] ?? '',
@@ -34,7 +34,7 @@ class Pet {
   }
 
   // Métodos para mapear int a enums específicos
-  static AgePet _agePetFromInt(int value) {
+  static AgePet agePetFromInt(int value) {
     switch (value) {
       case 0:
         return AgePet.cachorro;
@@ -47,7 +47,7 @@ class Pet {
     }
   }
 
-  static SizePet _sizePetFromInt(int value) {
+  static SizePet sizePetFromInt(int value) {
     switch (value) {
       case 0:
         return SizePet.chico;
@@ -97,4 +97,11 @@ class Pet {
         throw ArgumentError("Valor inválido para SizePet: $size");
     }
   }
+
+  String _getStringValue(Enum value) {
+    return value.toString().split('.').last;
+  }
+
+  String get ageString => _getStringValue(age);
+  String get sizeString => _getStringValue(size);
 }

@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
+import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/profile.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
@@ -182,7 +183,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                       IconButton(
                         icon: Icon(Icons.edit),
                         onPressed: () {
-                          // Edit pet information
+                          showDialog(
+                            context: context,
+                            builder: (context) => _showPetInfoDialog("Editar mascota", widget.user, pet),
+                          );
                         },
                       ),
                       IconButton(
@@ -201,75 +205,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Agregar nueva mascota"),
-                          content: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                TextField(
-                                  decoration: InputDecoration(hintText: "Nombre"),
-                                ),
-                                TextField(
-                                  decoration: InputDecoration(hintText: "Color"),
-                                ),
-                                TextField(
-                                  decoration: InputDecoration(hintText: "Descripción"),
-                                ),
-                                DropdownButtonFormField<int>(
-                                  decoration: InputDecoration(hintText: "Edad"),
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: 0,
-                                      child: Text("bebé"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 1,
-                                      child: Text("adulto"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 2,
-                                      child: Text("anciano"),
-                                    ),
-                                  ],
-                                  onChanged: (value) {},
-                                ),
-                                DropdownButtonFormField<int>(
-                                  decoration: InputDecoration(hintText: "Tamaño"),
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: 0,
-                                      child: Text("Pequeño"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 1,
-                                      child: Text("Mediano"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 2,
-                                      child: Text("Grande"),
-                                    ),
-                                    ],
-                                  onChanged: (value) {},
-                                ),
-                              ],
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('Cancelar'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Agregar nueva mascota
-                                Navigator.pop(context);
-                              },
-                              child: Text('Aceptar'),
-                            ),
-                          ],
-                        );
-                      },
+                      builder: (context) => _showPetInfoDialog("Agregar nueva mascota", widget.user, null),
                     );
                   },
                   child: Text("Agregar nueva mascota"),
@@ -288,6 +224,112 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     );
   }
   
+  Widget _showPetInfoDialog(String title, users.User user, Pet? pet) {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController colorController = TextEditingController();
+    TextEditingController descriptionController = TextEditingController();
+
+    Pet finalPet = pet ?? Pet(
+      name: "Nombre",
+      color: "Color",
+      description: "Descripción",
+      age: AgePet.cachorro,
+      size: SizePet.chico,
+      raza: "Raza",
+      especie: "Especie",
+    );
+
+    if (pet != null) {
+      nameController.text = pet.name;
+      colorController.text = pet.color;
+      descriptionController.text = pet.description ?? "";
+    }
+
+    return AlertDialog(
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: Column(
+          children: [
+            TextField(
+              decoration: InputDecoration(hintText: finalPet.name),
+              controller: nameController,
+            ),
+            TextField(
+              decoration: InputDecoration(hintText: finalPet.color),
+              controller: colorController,
+            ),
+            TextField(
+              decoration: InputDecoration(hintText: finalPet.description),
+              controller: descriptionController,
+            ),
+            DropdownButtonFormField<int>(
+              decoration: InputDecoration(hintText: finalPet.ageString),
+              items: const [
+                DropdownMenuItem(
+                  value: 0,
+                  child: Text("Cachorro"),
+                ),
+                DropdownMenuItem(
+                  value: 1,
+                  child: Text("Adulto"),
+                ),
+                DropdownMenuItem(
+                  value: 2,
+                  child: Text("Anciano"),
+                ),
+              ],
+              onChanged: (value) {
+                finalPet.age = Pet.agePetFromInt(value!);
+              },
+            ),
+            DropdownButtonFormField<int>(
+              decoration: InputDecoration(hintText: finalPet.sizeString),
+              items: const [
+                DropdownMenuItem(
+                  value: 0,
+                  child: Text("Pequeño"),
+                ),
+                DropdownMenuItem(
+                  value: 1,
+                  child: Text("Mediano"),
+                ),
+                DropdownMenuItem(
+                  value: 2,
+                  child: Text("Grande"),
+                ),
+                ],
+              onChanged: (value) {
+                pet?.age = Pet.agePetFromInt(value!);
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            finalPet.name = nameController.text;
+            finalPet.color = colorController.text;
+            finalPet.description = descriptionController.text;
+            if (pet == null) {
+              user.pets.add(finalPet);
+            } else {
+              user.pets[user.pets.indexOf(pet)] = finalPet;
+            }
+            _updateDatabase(user, "Mascota actualizada!", "Hubo un error. Intenta nuevamente.");
+            Navigator.pop(context);
+          },
+          child: Text('Aceptar'),
+        ),
+      ],
+    );
+  }
+
+
   void _showAlertDialog(BuildContext context, String title, String hint, void Function(String) updateField) {
     TextEditingController controller = TextEditingController();
     showDialog(
@@ -308,12 +350,6 @@ class _ProfileSettingsState extends State<ProfileSettings> {
               onPressed: () {
                 updateField(controller.text);
                 _updateDatabase(widget.user, "Nombre de usuario actualizado!", "Hubo un error. Intenta nuevamente.");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfilePage(user: widget.user,),
-                  ),
-                );
               },
               child: Text('Aceptar'),
             ),
@@ -332,6 +368,12 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                   .then((_) {
                     ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(successMessage)),
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfilePage(user: widget.user,),
+                      ),
                     );
                   })
                   .catchError((error) {

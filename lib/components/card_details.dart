@@ -56,18 +56,13 @@ class PetDetails extends CardDetails {
 
   static List<Widget> _buildContentList(Pet petInfo) {
     return [
-      Text("Edad: ${_getStringValue(petInfo.age)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
-      Text("Tamaño: ${_getStringValue(petInfo.size)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
+      Text("Edad: ${petInfo.ageString}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
+      Text("Tamaño: ${petInfo.sizeString}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
       Text("Color: ${petInfo.color}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       SizedBox(height: 20),
       Text((petInfo.description != null) ? "${petInfo.description}" : "Sin descripción.", style: TextStyle(fontSize: 18),), 
     ];
   }
-  
-  static String _getStringValue(Enum value) {
-    return value.toString().split('.').last;
-  }
-
 }
 
 class ReportDetails extends CardDetails {
