@@ -1,9 +1,30 @@
-class Users {
+
+import 'objects/pet.dart';
+import 'objects/report.dart';
+
+class User {
   String username; 
   String email;
   String password;
-  List<String> pets;
+  List<Pet> pets;
+  List<Reporte> reportes = [];
   List<String> zones;
+  String icon = 'assets/images/user.png';
+  bool notificaciones = true;
 
-  Users({required this.username, required this.email, required this.password, required this.pets, required this.zones});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'username': username,
+      'email': email,
+      'password': password,
+      'pets': pets.map((pet) => pet.toMap()).toList(),
+      'reportes': reportes.map((reporte) => reporte.toMap()).toList(),
+      'zones': zones,
+      'icon': icon,
+      'notificaciones': notificaciones,
+    };
+  }
+
 }

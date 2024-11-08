@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:perdidos_ya/objects/report.dart';
+import 'objects/pet.dart';
 import 'registro.dart'; 
 import 'inicio.dart'; 
-import 'users.dart';
+import 'users.dart' as users;
 
 class LoginPage extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -83,11 +85,27 @@ class LoginPage extends StatelessWidget {
 
     if (querySnapshot.docs.isNotEmpty) {
       var userDoc = querySnapshot.docs.first;
-      Users user = Users(
+
+      var perdidosSnapshot = await FirebaseFirestore.instance
+          .collection('Mascotas perdidas')
+          .where('user', isEqualTo: userDoc['username'])
+          .get();
+      var encontradosSnapshot = await FirebaseFirestore.instance
+          .collection('Mascotas encontradas')
+          .where('user', isEqualTo: userDoc['username'])
+          .get();
+
+      var perdidos = perdidosSnapshot.docs;
+      var encontrados = encontradosSnapshot.docs;
+
+      var reportesTotales = perdidos + encontrados;
+
+      users.User user = users.User(
         username: userDoc['username'],
         email: userDoc['email'],
         password: userDoc['password'],
-        pets: List<String>.from(userDoc['mascotas']),
+        pets: List<Pet>.from(userDoc['mascotas'].map((mascota) => Pet.fromMap(mascota))),
+        reportes: List<Reporte>.from(reportesTotales.map((reporte) => Reporte.fromMap(reporte.data()))),
         zones: List<String>.from(userDoc['zonas']),
       );
 
