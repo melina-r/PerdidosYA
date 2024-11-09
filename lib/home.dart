@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
 
   const HomePage({super.key, required this.context, required this.user});
 
-  void _agregarAnuncio(String titulo, String descripcion, String zona, String especie, String raza, int tipoAnuncio) {
+  void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int tipoAnuncio) {
     String tablaBaseDeDatos = '';
     if(tipoAnuncio == perdido){
         tablaBaseDeDatos = 'Mascotas perdidas';
@@ -34,6 +34,7 @@ class HomePage extends StatelessWidget {
       'raza': raza,
       'titulo': titulo,
       'descripcion': descripcion,
+      'ubicacion': ubicacion,
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
@@ -44,6 +45,7 @@ class HomePage extends StatelessWidget {
     String descripcion = '';
     String raza = '';
     String zona = '';
+    String ubicacion = '';
     String especieSeleccionada = '';
     final List<String> especies = ['Gato','Perro'];
     bool botonGatoPresionado = false;
@@ -135,6 +137,11 @@ class HomePage extends StatelessWidget {
                 onChanged: (value) {
                   descripcion = value;
                 },
+              ),TextField(
+                decoration: InputDecoration(labelText: 'Ubicacion (opcional)'),
+                onChanged: (value) {
+                  ubicacion = value;
+                },
               ),
             ],
           );
@@ -150,7 +157,7 @@ class HomePage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                _agregarAnuncio(titulo, descripcion, zona, especieSeleccionada, raza, tipoAnuncio);
+                _agregarAnuncio(titulo, descripcion, zona, ubicacion, especieSeleccionada, raza, tipoAnuncio);
                 Navigator.of(context).pop();
               },
               child: const Text('Agregar'),
@@ -161,7 +168,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget anuncioShowAlert(String titulo, String descripcion, String zona, String especie, String raza) {
+  Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
     return SizedBox(
       height: 300.0,
       width: 300.0,
@@ -182,20 +189,23 @@ class HomePage extends StatelessWidget {
           ListTile(
             title: Text('Descripción:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
             subtitle: Text(descripcion),
+          ),ListTile(
+            title: Text('Ubicacion:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+            subtitle: Text(ubicacion),
           ),
         ],
       )
     );
   }
 
-  void _mostrarAnuncio(String titulo, String descripcion, String zona, String especie, String raza) {
+  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: colorTerciario,
           title: Center(child: Text(titulo),),
-          content:anuncioShowAlert(titulo, descripcion, zona, especie, raza),
+          content:anuncioShowAlert(titulo, descripcion, zona, ubicacion, especie, raza),
           actions: [
             TextButton(
               onPressed: () {
@@ -282,6 +292,7 @@ class HomePage extends StatelessWidget {
               final raza = alertData['raza'];
               final especie = alertData['especie'];
               final zona = alertData['Zona'];
+              final ubicacion =alertData['ubicacion'];
               final user = alertData['user'];
 
               combinedAlerts.add(
@@ -292,7 +303,7 @@ class HomePage extends StatelessWidget {
                       title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(titulo),
                       onTap: (){
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
                     ),
                   ),
                 ),
@@ -307,6 +318,7 @@ class HomePage extends StatelessWidget {
               final raza = alertData['raza'];
               final especie = alertData['especie'];
               final zona = alertData['Zona'];
+              final ubicacion =alertData['ubicacion'];
               final user = alertData['user'];  
 
               combinedAlerts.add(
@@ -318,7 +330,7 @@ class HomePage extends StatelessWidget {
                       subtitle: Text(titulo),
                       onTap: (){
                         
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
                     ),
                   ),
                 ),

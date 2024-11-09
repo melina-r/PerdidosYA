@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'theme.dart';
 
 class MapPage extends StatefulWidget {
@@ -12,23 +12,34 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   late GoogleMapController mapController;
   final Set<Marker> _markers = {};
-
-  final LatLng _center = const LatLng(45.521563, -122.677433);
+  final LatLng _center = const LatLng(-34.602469417156684, -58.390846554589395);
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    _showReports();
   }
 
-  Future<void> _addMarkerFromAddress(String address) async {
+  void _showReports() async{
+    CollectionReference reports = FirebaseFirestore.instance.collection('Mascotas encontradas');
+    QuerySnapshot querySnapshot = await reports.get();
+
+    for (var r in querySnapshot.docs) {
+      String ubicacion = r['ubicacion'] + ', Buenos Aires, Argentina';
+      String titulo = r['titulo'];
+      _addMarkerFromAddress(titulo,ubicacion);
+    }
+  }
+
+  Future<void> _addMarkerFromAddress(String titulo,String ubicacion) async {
     try {
-      List<Location> locations = await locationFromAddress(address);
+      List<Location> locations = await locationFromAddress(ubicacion);
       if (locations.isNotEmpty) {
         final location = locations.first;
         final marker = Marker(
-          markerId: MarkerId(address),
+          markerId: MarkerId(titulo),
           position: LatLng(location.latitude, location.longitude),
           infoWindow: InfoWindow(
-            title: address,
+            title: titulo,
           ),
         );
 
@@ -36,49 +47,13 @@ class _MapPageState extends State<MapPage> {
           _markers.add(marker);
         });
 
-        mapController.animateCamera(
-          CameraUpdate.newLatLngZoom(
-            LatLng(location.latitude, location.longitude),
-            14.0,
-          ),
-        );
       }
     } catch (e) {
       print('Error: $e');
     }
   }
 
-  void _showAddressInputDialog() {
-    final TextEditingController addressController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Ingresar Dirección'),
-          content: TextField(
-            controller: addressController,
-            decoration: const InputDecoration(hintText: 'Ingrese la dirección'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _addMarkerFromAddress(addressController.text);
-              },
-              child: const Text('Agregar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -96,17 +71,6 @@ class _MapPageState extends State<MapPage> {
               zoom: 11.0,
             ),
             markers: _markers,
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FloatingActionButton(
-                onPressed: _showAddressInputDialog,
-                tooltip: 'Agregar Punto',
-                child: const Icon(Icons.add),
-              ),
-            ),
           ),
         ],
       ),
