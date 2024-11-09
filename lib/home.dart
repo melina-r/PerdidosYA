@@ -38,33 +38,42 @@ class HomePage extends StatelessWidget {
       ubicacion: ubicacion,
       raza: raza,
       especie: especie,
-      timestamp: FieldValue.serverTimestamp(),
+      // timestamp: FieldValue.serverTimestamp(),
       user: user.username
       );
 
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
 
-    // _updateReportesEnZona(zona,reporte);
+    _updateReportesEnZona(zona,reporte);
   }
 
-//   void _updateReportesEnZona(String zonaBuscada, Reporte nuevoReporte) async {
-//   CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
+  void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
+    Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user);
 
-//   QuerySnapshot snapshot = await zonasRef.get();
-//   for (var doc in snapshot.docs) {
-//     if (doc['zona'] == zonaBuscada) {
-//       DocumentReference zonaRef = zonasRef.doc(doc.id);
-//       zonaRef.update({
-//         'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
-//       }).then((_) {
-//         print("Reporte agregado al array con éxito");
-//       }).catchError((error) {
-//         print("Error al agregar el reporte: $error");
-//       });
-//       break;
-//     }
-//   }
-// }
+  try {
+    // Obtener la referencia a la colección 'Zonas'
+    CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
+
+    // Buscar el documento que contiene la zona buscada
+    QuerySnapshot snapshot = await zonasRef.where('zona', isEqualTo: zonaBuscada).get();
+
+    if (snapshot.docs.isNotEmpty) {
+      // Obtener el primer documento que coincide con la búsqueda
+      DocumentReference zonaRef = snapshot.docs.first.reference;
+
+      // Actualizar el campo 'reportes' en el documento encontrado
+      await zonaRef.update({
+        'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
+      });
+
+      print("Reporte agregado al array con éxito");
+    } else {
+      print("No se encontró la zona: $zonaBuscada");
+    }
+  } catch (error) {
+    print("Error al agregar el reporte: $error");
+  }
+}
 
   
 

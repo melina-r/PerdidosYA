@@ -21,15 +21,11 @@ class _MapPageState extends State<MapPage> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    _showReports();
   }
 
   void _showReports() async{
-    User user = widget.user;
-    List<String> zones = user.zones;
     // for zonas del usuario agarro los reportes de la zona y lo siguiente
-    // for (var z in zones) {
-      
-    // }
     CollectionReference reports = FirebaseFirestore.instance.collection('Mascotas encontradas');
     QuerySnapshot querySnapshot = await reports.get();
 
