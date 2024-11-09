@@ -17,7 +17,6 @@ class Inicio extends StatefulWidget {
 class _InicioState extends State<Inicio> {
   int _selectedIndex = 0;
   List<Widget> paginas = [];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -28,7 +27,7 @@ class _InicioState extends State<Inicio> {
   Widget build(BuildContext context) {
     paginas = [
       HomePage(user: widget.user, context: context,),
-      MapPage(),
+      MapPage(user: widget.user),
       ProfilePage(user: widget.user), //esta luego se reemplaza por la pagina de mensajes
       ProfilePage(user: widget.user), 
     ];

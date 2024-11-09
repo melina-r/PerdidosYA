@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
+import 'package:perdidos_ya/barrios.dart';
+import 'package:perdidos_ya/objects/report.dart';
 
 class HomePage extends StatelessWidget {
   final int perdido = 0;
@@ -13,6 +15,7 @@ class HomePage extends StatelessWidget {
   final String queryLista = "";
   final BuildContext context;
   final users.User user;
+
 
   const HomePage({super.key, required this.context, required this.user});
 
@@ -27,18 +30,43 @@ class HomePage extends StatelessWidget {
                 );
       tablaBaseDeDatos = 'Mascotas encontradas';
     }
-    FirebaseFirestore.instance.collection(tablaBaseDeDatos).add({
-      'Zona': zona,
-      'user': user.username,
-      'especie': especie,
-      'raza': raza,
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'ubicacion': ubicacion,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+
+    Reporte reporte = Reporte(
+      titulo: titulo, 
+      descripcion: descripcion,
+      zona: zona,
+      ubicacion: ubicacion,
+      raza: raza,
+      especie: especie,
+      timestamp: FieldValue.serverTimestamp(),
+      user: user.username
+      );
+
+    FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
+
+    // _updateReportesEnZona(zona,reporte);
   }
 
+//   void _updateReportesEnZona(String zonaBuscada, Reporte nuevoReporte) async {
+//   CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
+
+//   QuerySnapshot snapshot = await zonasRef.get();
+//   for (var doc in snapshot.docs) {
+//     if (doc['zona'] == zonaBuscada) {
+//       DocumentReference zonaRef = zonasRef.doc(doc.id);
+//       zonaRef.update({
+//         'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
+//       }).then((_) {
+//         print("Reporte agregado al array con éxito");
+//       }).catchError((error) {
+//         print("Error al agregar el reporte: $error");
+//       });
+//       break;
+//     }
+//   }
+// }
+
+  
 
   void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) {
     String titulo = '';
@@ -50,6 +78,9 @@ class HomePage extends StatelessWidget {
     final List<String> especies = ['Gato','Perro'];
     bool botonGatoPresionado = false;
     bool botonPerroPresionado = false;
+    final zonas = Zona.values;
+    Zona? zonaElegida;
+    
 
     showDialog(
       context: context,
@@ -126,11 +157,31 @@ class HomePage extends StatelessWidget {
                   raza = value;
                 },
               ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Codigo Postal'),
-                onChanged: (value) {
-                  zona= value;
-                },
+               Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 15.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<Zona>(
+                      hint: Text(zonaElegida != null ? zona : 'Zona'),
+                      value: zonaElegida,
+                      onChanged: (Zona? nuevaZona) {
+                        setDialogState(() {
+                          zonaElegida = nuevaZona;
+                          zona = zonaToString(zonaElegida!);
+                        });
+                      },
+                      items: zonas.map((Zona zona) {
+                        return DropdownMenuItem<Zona>(
+                        value: zona,
+                        child: Text(zonaToString(zona)),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
               TextField(
                 decoration: InputDecoration(labelText: 'Descripción'),

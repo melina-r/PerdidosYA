@@ -3,8 +3,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'theme.dart';
+import 'package:perdidos_ya/users.dart';
 
 class MapPage extends StatefulWidget {
+  final User user;
+
+  const MapPage({required this.user});
   @override
   _MapPageState createState() => _MapPageState();
 }
@@ -14,12 +18,18 @@ class _MapPageState extends State<MapPage> {
   final Set<Marker> _markers = {};
   final LatLng _center = const LatLng(-34.602469417156684, -58.390846554589395);
 
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    _showReports();
   }
 
   void _showReports() async{
+    User user = widget.user;
+    List<String> zones = user.zones;
+    // for zonas del usuario agarro los reportes de la zona y lo siguiente
+    // for (var z in zones) {
+      
+    // }
     CollectionReference reports = FirebaseFirestore.instance.collection('Mascotas encontradas');
     QuerySnapshot querySnapshot = await reports.get();
 
