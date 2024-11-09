@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:perdidos_ya/login.dart';
@@ -12,9 +13,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+     return MaterialApp(
       title: 'perdidosYa',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colorPrincipalUno),

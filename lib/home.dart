@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
+import 'package:perdidos_ya/barrios.dart';
+import 'package:perdidos_ya/objects/report.dart';
 
 class HomePage extends StatelessWidget {
   final int perdido = 0;
@@ -14,9 +16,10 @@ class HomePage extends StatelessWidget {
   final BuildContext context;
   final users.User user;
 
+
   const HomePage({super.key, required this.context, required this.user});
 
-  void _agregarAnuncio(String titulo, String descripcion, String zona, String especie, String raza, int tipoAnuncio) {
+  void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int tipoAnuncio) {
     String tablaBaseDeDatos = '';
     if(tipoAnuncio == perdido){
         tablaBaseDeDatos = 'Mascotas perdidas';
@@ -27,27 +30,57 @@ class HomePage extends StatelessWidget {
                 );
       tablaBaseDeDatos = 'Mascotas encontradas';
     }
-    FirebaseFirestore.instance.collection(tablaBaseDeDatos).add({
-      'Zona': zona,
-      'user': user.username,
-      'especie': especie,
-      'raza': raza,
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+
+    Reporte reporte = Reporte(
+      titulo: titulo, 
+      descripcion: descripcion,
+      zona: zona,
+      ubicacion: ubicacion,
+      raza: raza,
+      especie: especie,
+      timestamp: FieldValue.serverTimestamp(),
+      user: user.username
+      );
+
+    FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
+
+    // _updateReportesEnZona(zona,reporte);
   }
 
+//   void _updateReportesEnZona(String zonaBuscada, Reporte nuevoReporte) async {
+//   CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
+
+//   QuerySnapshot snapshot = await zonasRef.get();
+//   for (var doc in snapshot.docs) {
+//     if (doc['zona'] == zonaBuscada) {
+//       DocumentReference zonaRef = zonasRef.doc(doc.id);
+//       zonaRef.update({
+//         'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
+//       }).then((_) {
+//         print("Reporte agregado al array con éxito");
+//       }).catchError((error) {
+//         print("Error al agregar el reporte: $error");
+//       });
+//       break;
+//     }
+//   }
+// }
+
+  
 
   void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) {
     String titulo = '';
     String descripcion = '';
     String raza = '';
     String zona = '';
+    String ubicacion = '';
     String especieSeleccionada = '';
     final List<String> especies = ['Gato','Perro'];
     bool botonGatoPresionado = false;
     bool botonPerroPresionado = false;
+    final zonas = Zona.values;
+    Zona? zonaElegida;
+    
 
     showDialog(
       context: context,
@@ -124,16 +157,41 @@ class HomePage extends StatelessWidget {
                   raza = value;
                 },
               ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Codigo Postal'),
-                onChanged: (value) {
-                  zona= value;
-                },
+               Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 15.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<Zona>(
+                      hint: Text(zonaElegida != null ? zona : 'Zona'),
+                      value: zonaElegida,
+                      onChanged: (Zona? nuevaZona) {
+                        setDialogState(() {
+                          zonaElegida = nuevaZona;
+                          zona = zonaToString(zonaElegida!);
+                        });
+                      },
+                      items: zonas.map((Zona zona) {
+                        return DropdownMenuItem<Zona>(
+                        value: zona,
+                        child: Text(zonaToString(zona)),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
               TextField(
                 decoration: InputDecoration(labelText: 'Descripción'),
                 onChanged: (value) {
                   descripcion = value;
+                },
+              ),TextField(
+                decoration: InputDecoration(labelText: 'Ubicacion (opcional)'),
+                onChanged: (value) {
+                  ubicacion = value;
                 },
               ),
             ],
@@ -150,7 +208,7 @@ class HomePage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                _agregarAnuncio(titulo, descripcion, zona, especieSeleccionada, raza, tipoAnuncio);
+                _agregarAnuncio(titulo, descripcion, zona, ubicacion, especieSeleccionada, raza, tipoAnuncio);
                 Navigator.of(context).pop();
               },
               child: const Text('Agregar'),
@@ -161,7 +219,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget anuncioShowAlert(String titulo, String descripcion, String zona, String especie, String raza) {
+  Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
     return SizedBox(
       height: 300.0,
       width: 300.0,
@@ -182,20 +240,23 @@ class HomePage extends StatelessWidget {
           ListTile(
             title: Text('Descripción:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
             subtitle: Text(descripcion),
+          ),ListTile(
+            title: Text('Ubicacion:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+            subtitle: Text(ubicacion),
           ),
         ],
       )
     );
   }
 
-  void _mostrarAnuncio(String titulo, String descripcion, String zona, String especie, String raza) {
+  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: colorTerciario,
           title: Center(child: Text(titulo),),
-          content:anuncioShowAlert(titulo, descripcion, zona, especie, raza),
+          content:anuncioShowAlert(titulo, descripcion, zona, ubicacion, especie, raza),
           actions: [
             TextButton(
               onPressed: () {
@@ -282,6 +343,7 @@ class HomePage extends StatelessWidget {
               final raza = alertData['raza'];
               final especie = alertData['especie'];
               final zona = alertData['Zona'];
+              final ubicacion =alertData['ubicacion'];
               final user = alertData['user'];
 
               combinedAlerts.add(
@@ -292,7 +354,7 @@ class HomePage extends StatelessWidget {
                       title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(titulo),
                       onTap: (){
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
                     ),
                   ),
                 ),
@@ -307,6 +369,7 @@ class HomePage extends StatelessWidget {
               final raza = alertData['raza'];
               final especie = alertData['especie'];
               final zona = alertData['Zona'];
+              final ubicacion =alertData['ubicacion'];
               final user = alertData['user'];  
 
               combinedAlerts.add(
@@ -318,7 +381,7 @@ class HomePage extends StatelessWidget {
                       subtitle: Text(titulo),
                       onTap: (){
                         
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$especie', '$raza' );},
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
                     ),
                   ),
                 ),

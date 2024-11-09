@@ -3,18 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Reporte {
   String titulo;
   String zona;
+  String ubicacion;
   String raza;
   String especie;
   String descripcion;
   final timestamp;
   String user;
 
-  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.raza, required this.especie, required this.timestamp, required this.user});
+  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.timestamp, required this.user});
 
   factory Reporte.fromMap(Map<String, dynamic> reporte) {
     return Reporte(
       titulo: reporte['titulo'] ?? '',
       zona: reporte['Zona'] ?? '',
+      ubicacion: reporte['ubicacion'] ?? '',
       raza: reporte['raza'] ?? '',
       especie: reporte['especie'] ?? '',
       descripcion: reporte['descripcion'] ?? '',
@@ -27,6 +29,7 @@ class Reporte {
     return {
       'titulo': titulo,
       'zona': zona,
+      'ubicacion': ubicacion,
       'raza': raza,
       'especie': especie,
       'descripcion': descripcion,
