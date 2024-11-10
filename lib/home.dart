@@ -334,7 +334,6 @@ class HomePage extends StatelessWidget {
             }
 
             List<Widget> combinedAlerts = [];
-
             // Agregar mascotas perdidas
             for (var alert in lostAlerts) {
               final alertData = alert.data() as Map<String, dynamic>;
@@ -345,20 +344,21 @@ class HomePage extends StatelessWidget {
               final zona = alertData['Zona'];
               final ubicacion =alertData['ubicacion'];
               final user = alertData['user'];
-
-              combinedAlerts.add(
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    child: ListTile(
-                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(titulo),
-                      onTap: (){
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
+              if(user.username != user){
+                combinedAlerts.add(
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: ListTile(
+                        title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(titulo),
+                        onTap: (){
+                          _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
+                      ),
                     ),
                   ),
-                ),
-              );
+                );
+              }
             }
 
             // Agregar mascotas encontradas
