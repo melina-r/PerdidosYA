@@ -58,7 +58,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         children: [
           Column(
             children: [
-              SizedBox(height: 20),
+            SizedBox(height: 20),
             ToggleList(
               sections: [
                 ToggleData(
@@ -145,7 +145,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   }
 
   void _updateUsername(BuildContext context) {
-    _showAlertDialog(context, "Modificar nombre de usuario", "nuevo nombre de usuario", _changeUsername);
+    _showAlertDialog(context, "Modificar nombre de usuario", "Nuevo nombre de usuario");
   }
 
   void _editPets(BuildContext context) {
@@ -235,56 +235,58 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text("Modificar mascotas"),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                ...user.pets.map((pet) => ListTile(
-                  title: Text(pet.name),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => _showPetInfoDialog("Editar mascota", user, pet),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          user.pets.remove(pet);
-                          _updateDatabase("Mascota eliminada!");
-                          Navigator.pop(context);
-                          _showPetsDialog(context);
-                        },
-                      ),
-                    ],
+        return StatefulBuilder(builder: (context, setState) =>
+          AlertDialog(
+            title: Text("Modificar mascotas"),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  ...user.pets.map((pet) => ListTile(
+                    title: Text(pet.name),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => _showPetInfoDialog("Editar mascota", user, pet),
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            user.pets.remove(pet);
+                            _updateDatabase("Mascota eliminada!");
+                            Navigator.pop(context);
+                            setState(() {});
+                          },
+                        ),
+                      ],
+                    ),
+                  )),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => _showPetInfoDialog("Agregar nueva mascota", user, null),
+                      );
+                    },
+                    child: Text("Agregar nueva mascota"),
                   ),
-                )),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => _showPetInfoDialog("Agregar nueva mascota", user, null),
-                    );
-                  },
-                  child: Text("Agregar nueva mascota"),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cerrar'),
-            ),
-          ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cerrar'),
+              ),
+            ],
+          )
         );
       },
     );
@@ -294,6 +296,8 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     TextEditingController nameController = TextEditingController();
     TextEditingController colorController = TextEditingController();
     TextEditingController descriptionController = TextEditingController();
+    bool isDog = pet != null ? pet.especie == Especie.perro : true;
+    List<Enum> razaList = isDog ? RazaPerro.values : RazaGato.values;
 
     Pet finalPet = pet ?? Pet(
       name: "Nombre",
@@ -311,7 +315,8 @@ class _ProfileSettingsState extends State<ProfileSettings> {
       descriptionController.text = pet.description ?? "";
     }
 
-    return AlertDialog(
+    return StatefulBuilder(builder: (context, setState) =>
+      AlertDialog(
       title: Text(title),
       content: SingleChildScrollView(
         child: Column(
@@ -336,19 +341,22 @@ class _ProfileSettingsState extends State<ProfileSettings> {
               )).toList(),
               onChanged: (value) {
                 finalPet.especie = Especie.values[value!];
+                setState(() {
+                  isDog = value == Especie.perro.index;
+                  setState(() {
+                    razaList = isDog ? RazaPerro.values : RazaGato.values;
+                  });
+                });
               },
             ),
             DropdownButtonFormField<int>(
               decoration: InputDecoration(hintText: finalPet.razaString),
-              items: (finalPet.especie == Especie.perro) ? RazaPerro.values.map((raza) => DropdownMenuItem(
-                value: raza.index,
-                child: Text(raza.toString().split('.').last),
-              )).toList() : RazaGato.values.map((raza) => DropdownMenuItem(
+              items: razaList.map((raza) => DropdownMenuItem(
                 value: raza.index,
                 child: Text(raza.toString().split('.').last),
               )).toList(),
               onChanged: (value) {
-                finalPet.raza = (finalPet.especie == Especie.perro) ? RazaPerro.values[value!] : RazaGato.values[value!];
+                finalPet.raza = razaList[value!];
               },
             ),
             DropdownButtonFormField<int>(
@@ -381,9 +389,17 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         ),
         TextButton(
           onPressed: () {
+            if (nameController.text.isEmpty || colorController.text.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Por favor, completa todos los campos")),
+              );
+              return;
+            }
+
             finalPet.name = nameController.text;
             finalPet.color = colorController.text;
             finalPet.description = descriptionController.text;
+
             if (pet == null) {
               user.pets.add(finalPet);
             } else {
@@ -395,11 +411,12 @@ class _ProfileSettingsState extends State<ProfileSettings> {
           child: Text('Aceptar'),
         ),
       ],
+    )
     );
   }
 
 
-  void _showAlertDialog(BuildContext context, String title, String hint, void Function(String) updateField) {
+  void _showAlertDialog(BuildContext context, String title, String hint) {
     TextEditingController controller = TextEditingController();
     showDialog(
       context: context,
@@ -417,7 +434,14 @@ class _ProfileSettingsState extends State<ProfileSettings> {
             ),
             TextButton(
               onPressed: () {
-                updateField(controller.text);
+                if (controller.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Por favor, completa el campo")),
+                  );
+                  return;
+                }
+                user.username = controller.text;
+                Navigator.pop(context);
                 _updateDatabase("Nombre de usuario actualizado!");
               },
               child: Text('Aceptar'),
@@ -438,12 +462,12 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                     ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(successMessage)),
                     );
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfilePage(user: user,),
-                      ),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => ProfilePage(user: user,),
+                    //   ),
+                    // );
                     _loadUserFromFirebase();
                   })
                   .catchError((error) {
@@ -452,9 +476,5 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                     );
                   });
     _loadUserFromFirebase();
-  }
-
-  void _changeUsername(String newUsername) {
-    user.username = newUsername;
   }
 }

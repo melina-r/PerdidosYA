@@ -21,13 +21,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late users.User user;
 
-  @override
-  void initState() {
-    super.initState();
-    user = widget.user;
-    _loadUserFromFirebase();
-  }
-
   Future<void> _loadUserFromFirebase() async {
     final currentUserEmail = FirebaseAuth.instance.currentUser?.email;
     if (currentUserEmail != null) {
@@ -47,6 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    _loadUserFromFirebase();
     return MaterialApp(
       home: Scaffold(
         backgroundColor: colorTerciario,
@@ -71,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               SizedBox(height: 30),
-              ProfilePicture(username: user.icon),
+              ProfilePicture(user: user),
               SizedBox(height: 20),
               Text(
                 '@${user.username}',

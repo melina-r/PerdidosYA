@@ -1,15 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import 'package:perdidos_ya/theme.dart'; // Para manejar los archivos locales
+import 'package:perdidos_ya/theme.dart';
+import 'package:perdidos_ya/users.dart' as users; // Para manejar los archivos locales
 
 class ProfilePicture extends StatefulWidget {
-  final String username;
+  final users.User user;
 
   const ProfilePicture({
     super.key,
-    required this.username,
+    required this.user,
   });
 
   @override
@@ -17,13 +19,21 @@ class ProfilePicture extends StatefulWidget {
 }
 
 class _ProfilePictureState extends State<ProfilePicture> {
-  File? _image; 
+  late File _image;
+
+  @override
+  void initState() {
+    super.initState();
+    _image = File(widget.user.icon);
+  }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedImage = await picker.pickImage(source: ImageSource.gallery);
     
     if (pickedImage != null) {
+      widget.user.icon = pickedImage.path;
+      _updateDatabase("Imagen de perfil actualizada.");
       setState(() {
         _image = File(pickedImage.path);
       });
@@ -40,18 +50,16 @@ class _ProfilePictureState extends State<ProfilePicture> {
             children: [
               CircleAvatar(
               radius: 75,
-              backgroundImage: _image != null ? FileImage(_image!) : null,
+              backgroundImage: FileImage(_image),
               backgroundColor: colorPrincipalDos,
-              child: _image == null
-                ? Text(
-                  widget.username[0], // Mostrar la inicial si no hay imagen
+              child: Text(
+                  widget.user.username[0], // Mostrar la inicial si no hay imagen
                   style: TextStyle(
                     fontSize: 35,
                     fontWeight: FontWeight.bold,
                     color: colorTerciario,
                   ),
-                  )
-                : null,
+                ),
               ),
               Positioned(
                 bottom: 0,
@@ -78,5 +86,23 @@ class _ProfilePictureState extends State<ProfilePicture> {
         ),
       ],
     );
+  }
+
+  Future<void> _updateDatabase(String successMessage) async {
+    final userId = (await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: widget.user.email).get()).docs.first.id;
+    FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(userId)                  
+                  .update(widget.user.toMap())
+                  .then((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(successMessage)),
+                    );
+                  })
+                  .catchError((error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Hubo un error. Intenta nuevamente.")),
+                    );
+                  });
   }
 }
