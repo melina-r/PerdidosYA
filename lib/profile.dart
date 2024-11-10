@@ -1,24 +1,66 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:perdidos_ya/components/card_details.dart';
 import 'package:perdidos_ya/components/profile_picture.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
-import 'package:perdidos_ya/objects/pet.dart';
+import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/profile_settings.dart';
+import 'package:perdidos_ya/theme.dart';
+import 'package:perdidos_ya/users.dart' as users;
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  final users.User user;
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+  const ProfilePage({super.key, required this.user});
+}
+
+
+class _ProfilePageState extends State<ProfilePage> {
+  late users.User user;
+
+  @override
+  void initState() {
+    super.initState();
+    user = widget.user;
+    _loadUserFromFirebase();
+  }
+
+  Future<void> _loadUserFromFirebase() async {
+    final currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+    if (currentUserEmail != null) {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: currentUserEmail)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var userDoc = querySnapshot.docs.first;
+        setState(() {
+          user = users.User.fromMap(userDoc.data());
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: colorTerciario,
         appBar: AppBar(
-          title: Text('Profile'),
+          backgroundColor: colorTerciario,
           actions: [
             IconButton(
-              icon: Icon(Icons.settings),
+              icon: Icon(Icons.settings, size: 40,),
+              color: colorPrincipalUno,
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ProfileSettings(),
+                    builder: (context) => ProfileSettings(user: user,),
                   ),
                 );
               },
@@ -28,36 +70,37 @@ class ProfilePage extends StatelessWidget {
         body: SingleChildScrollView(
           child: Column(
             children: [
+              SizedBox(height: 30),
+              ProfilePicture(username: user.icon),
               SizedBox(height: 20),
-              ProfilePicture(username: "John Doe"),
-              SizedBox(height: 10),
               Text(
-                '@JohnDoe',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                '@${user.username}',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: 20),
               ToggleList(
                 sections: [
                   ToggleData(
-                    icon: Icons.pets,
-                    title: 'Mascotas',
-                    content: [
-                      PetDetails(petInfo: Pet(age: AgePet.adulto, size: SizePet.chico, name: "Firulais", color: "marrón", description: " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum consequat neque feugiat augue elementum, non tempus risus tempus. Curabitur eu aliquam leo, placerat congue velit. Sed nec dui eget odio facilisis maximus sed vel odio. Etiam ac venenatis felis, sit amet facilisis dolor. Suspendisse faucibus, mi ac elementum accumsan, lorem ex mattis neque, eget tempor justo ex non justo. Fusce quis mi urna. Aliquam erat volutpat. Sed sed nibh nec mauris tincidunt venenatis sed at turpis. Donec imperdiet lorem quis tortor blandit dignissim. Quisque feugiat feugiat venenatis. Aliquam metus mi, scelerisque et placerat ultrices, auctor sit amet est. Curabitur aliquam tincidunt imperdiet. Phasellus id dignissim libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; ")),
-                      PetDetails(petInfo: Pet(age: AgePet.bebe, size: SizePet.chico, name: "Negrito", color: "negro", description: "Tiene el pelo corto, usa un collar violeta y tiene una mancha blanca en el pecho."))
-                    ],
-                  ),
-                  ToggleData(
                     icon: Icons.location_on,
                     title: 'Zonas preferidas',
                     content: [
-                      ListTile(title: Text("Belgrano")),
-                      ListTile(title: Text("San Telmo"))
+                      ...user.zones.map((zona) => ListTile(title: Text(zonaToString(zona)))),
+                    ],
+                  ),
+                  ToggleData(
+                    icon: Icons.pets,
+                    title: 'Mascotas',
+                    content: [
+                    ...user.pets.map((pet) => PetDetails(petInfo: pet)),
                     ],
                   ),
                   ToggleData(
                     icon: Icons.announcement,
                     title: 'Mis anuncios',
-                    content: [],
+                    content: [
+                      ...user.reportes.map((report) => ListTile(title: Text(report.titulo))),
+                    ],
                   ),
                 ],
               ),
@@ -68,4 +111,3 @@ class ProfilePage extends StatelessWidget {
     );
   }
 }
-
