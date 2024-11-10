@@ -1,13 +1,16 @@
 enum SizePet { chico, mediano, grande }
 enum AgePet { cachorro, adulto, anciano }
+enum RazaPerro { mestizo, bulldog, labrador, pastorAleman, pastorBelga, boxer, chihuahua, dalmata, doberman, goldenRetriever, huskySiberiano, pug, rottweiler, sanBernardo, schnauzer, shihTzu, yorkshireTerrier }
+enum RazaGato { mestizo, siames, persa, bengala, ragdoll, sphynx, maineCoon, britishShorthair, scottishFold, munchkin }
+enum Especie { perro, gato }
 
 class Pet {
   AgePet age;
   SizePet size;
   String name;
   String color;
-  String raza;
-  String especie;
+  Especie especie;
+  dynamic raza;
   String? description;
 
   Pet({
@@ -27,37 +30,41 @@ class Pet {
       size: sizePetFromInt(mascota['size'] ?? 0),
       name: mascota['name'] ?? '',
       color: mascota['color'] ?? '',
-      raza: mascota['raza'] ?? '',
-      especie: mascota['especie'] ?? '',
+      raza: razaFromString(mascota['raza'], especieFromInt(mascota['especie'] ?? 0)),
+      especie: especieFromInt(mascota['especie'] ?? 0),
       description: mascota['description'] ?? '',
     );
   }
 
-  // Métodos para mapear int a enums específicos
-  static AgePet agePetFromInt(int value) {
-    switch (value) {
-      case 0:
-        return AgePet.cachorro;
-      case 1:
-        return AgePet.adulto;
-      case 2:
-        return AgePet.anciano;
-      default:
-        throw ArgumentError("Valor inválido para AgePet: $value");
+  static dynamic razaFromString(String raza, Especie especie) {
+    if (especie == Especie.perro) {
+      return RazaPerro.values.firstWhere((e) => e.toString().split('.').last == raza, orElse: () => RazaPerro.mestizo);
+    } else if (especie == Especie.gato) {
+      return RazaGato.values.firstWhere((e) => e.toString().split('.').last == raza, orElse: () => RazaGato.mestizo);
+    } else {
+      throw ArgumentError("Especie no soportada: $especie");
     }
   }
 
+  String razaToString() {
+    return raza.toString().split('.').last;
+  }
+
+  // Métodos para mapear int a enums específicos
+  static Especie especieFromInt(int value) {
+    return Especie.values[value];
+  }
+
+  static int especieToInt(Especie especie) {
+    return especie.index;
+  }
+
+  static AgePet agePetFromInt(int value) {
+    return AgePet.values[value];
+  }
+
   static SizePet sizePetFromInt(int value) {
-    switch (value) {
-      case 0:
-        return SizePet.chico;
-      case 1:
-        return SizePet.mediano;
-      case 2:
-        return SizePet.grande;
-      default:
-        throw ArgumentError("Valor inválido para SizePet: $value");
-    }
+    return SizePet.values[value];
   }
 
   Map<String, dynamic> toMap() {
@@ -66,36 +73,18 @@ class Pet {
       'size': _sizePetToInt(size),
       'name': name,
       'color': color,
-      'raza': raza,
-      'especie': especie,
+      'raza': razaToString(),
+      'especie': especieToInt(especie),
       'description': description,
     };
   }
 
   static int _agePetToInt(AgePet age) {
-    switch (age) {
-      case AgePet.cachorro:
-        return 0;
-      case AgePet.adulto:
-        return 1;
-      case AgePet.anciano:
-        return 2;
-      default:
-        throw ArgumentError("Valor inválido para AgePet: $age");
-    }
+    return age.index;
   }
 
   static int _sizePetToInt(SizePet size) {
-    switch (size) {
-      case SizePet.chico:
-        return 0;
-      case SizePet.mediano:
-        return 1;
-      case SizePet.grande:
-        return 2;
-      default:
-        throw ArgumentError("Valor inválido para SizePet: $size");
-    }
+    return size.index;
   }
 
   String _getStringValue(Enum value) {
@@ -104,4 +93,6 @@ class Pet {
 
   String get ageString => _getStringValue(age);
   String get sizeString => _getStringValue(size);
+  String get razaString => razaToString();
+  String get especieString => _getStringValue(especie);
 }

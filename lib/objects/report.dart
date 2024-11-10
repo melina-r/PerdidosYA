@@ -7,7 +7,7 @@ class Reporte {
   String raza;
   String especie;
   String descripcion;
-  final timestamp;
+  dynamic timestamp;
   String user;
 
   Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.timestamp, required this.user});
