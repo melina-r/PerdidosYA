@@ -49,17 +49,9 @@ class _ProfilePictureState extends State<ProfilePicture> {
           child: Stack(
             children: [
               CircleAvatar(
-              radius: 75,
-              backgroundImage: FileImage(_image),
-              backgroundColor: colorPrincipalDos,
-              child: Text(
-                  widget.user.username[0], // Mostrar la inicial si no hay imagen
-                  style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                    color: colorTerciario,
-                  ),
-                ),
+                radius: 75,
+                backgroundImage: FileImage(_image),
+                backgroundColor: colorPrincipalDos,
               ),
               Positioned(
                 bottom: 0,
