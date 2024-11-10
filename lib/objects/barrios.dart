@@ -58,7 +58,7 @@ String zonaToString(Zona zona) {
 }
 
 Zona stringToZona(String zona) {
-  return Zona.values.firstWhere((e) => e.toString().split('.').last == zona);
+  return Zona.values.firstWhere((e) => e.toString().split('.').last == zona, orElse: () => Zona.Agronomia);
 }
 String formatZonaName(String zonaName) {
   return zonaName.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (Match m) => '${m[1]} ${m[2]}');

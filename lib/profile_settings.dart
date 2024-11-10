@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
+import 'package:perdidos_ya/login.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/profile.dart';
@@ -53,58 +54,90 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         title: Text('Configuraciones', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(height: 20),
-          ToggleList(
-            sections: [
-              ToggleData(
-                icon: Icons.person,
-                title: 'Modificar datos',
-                content: [
-                  ListTile(
-                    title: Text('Username'),
-                    subtitle: Text(user.username),
-                    trailing: Icon(Icons.edit),
-                    onTap: () {
-                      _updateUsername(context);
-                    }
-                  ),
-                  ListTile(
-                    title: Text("Mascotas"),
-                    subtitle: Text("Agregar o eliminar mascotas"),
-                    trailing: Icon(Icons.edit),
-                    onTap: () => _editPets(context),
-                  ),
-                  ListTile(
-                    title: Text("Zonas preferidas"),
-                    subtitle: Text("Agregar o eliminar zonas"),
-                    trailing: Icon(Icons.edit),
-                    onTap: () => _editZones(context),
-                  ),
-                ],
-              ),
-              ToggleData(
-                icon: Icons.notifications,                  
-                title: 'Notificaciones',
-                content: [
-                  ListTile(
-                    title: Text('Apagar todas las notificaciones'),
-                    trailing: Switch(
-                      value: user.notificaciones,
-                      onChanged: (bool value) {
-                          setState(() {
-                            user.notificaciones = value;
-                          });
-                      },
+          Column(
+            children: [
+              SizedBox(height: 20),
+            ToggleList(
+              sections: [
+                ToggleData(
+                  icon: Icons.person,
+                  title: 'Modificar datos',
+                  content: [
+                    ListTile(
+                      title: Text('Username'),
+                      subtitle: Text(user.username),
+                      trailing: Icon(Icons.edit),
+                      onTap: () {
+                        _updateUsername(context);
+                      }
                     ),
-                  )
-                ],
-              ),
+                    ListTile(
+                      title: Text("Mascotas"),
+                      subtitle: Text("Agregar o eliminar mascotas"),
+                      trailing: Icon(Icons.edit),
+                      onTap: () => _editPets(context),
+                    ),
+                    ListTile(
+                      title: Text("Zonas preferidas"),
+                      subtitle: Text("Agregar o eliminar zonas"),
+                      trailing: Icon(Icons.edit),
+                      onTap: () => _editZones(context),
+                    ),
+                  ],
+                ),
+                ToggleData(
+                  icon: Icons.notifications,                  
+                  title: 'Notificaciones',
+                  content: [
+                    ListTile(
+                      title: Text('Apagar todas las notificaciones'),
+                      trailing: Switch(
+                        value: user.notificaciones,
+                        onChanged: (bool value) {
+                            setState(() {
+                              user.notificaciones = value;
+                            });
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
             ],
           ),
           ListTile(
-            title: Text("Cerrar sesion"),
-
+            leading: Icon(Icons.logout),
+            contentPadding: EdgeInsets.only(left: 25, bottom: 10),
+            title: Text("Cerrar sesion", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+              showDialog(
+                context: context, builder: (context) => AlertDialog(
+                title: Text("Cerrar sesión"),
+                content: Text("¿Seguro que deseas cerrar sesión?"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, 
+                        MaterialPageRoute(builder: (context) => LoginPage())
+                      );
+                    },
+                    child: Text("Aceptar"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Cancelar"),
+                  ),
+                ],
+                )
+              );
+            },
           ),
         ],
       ),
@@ -408,7 +441,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProfileSettings(user: user,),
+                        builder: (context) => ProfilePage(user: user,),
                       ),
                     );
                     _loadUserFromFirebase();
