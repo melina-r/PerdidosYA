@@ -3,16 +3,16 @@ class Mensaje {
   String body;
   String title;
   String from;
-  dynamic timestamp;
+  dynamic received;
 
-  Mensaje({required this.body, required this.title, required this.from, required this.timestamp});
+  Mensaje({required this.body, required this.title, required this.from, required this.received});
 
   factory Mensaje.fromMap(Map<String, dynamic> mensaje) {
     return Mensaje(
       body: mensaje['body'] ?? '',
       title: mensaje['title'] ?? '',
       from: mensaje['from'] ?? '',
-      timestamp: mensaje['timestamp'],
+      received: mensaje['received'],
     );
   }
 
@@ -21,7 +21,7 @@ class Mensaje {
       'body': body,
       'title': title,
       'from': from,
-      'timestamp': timestamp,
+      'received': received,
     };
   }
 }

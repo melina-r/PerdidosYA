@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessagesPage extends StatefulWidget {
   final users.User user;
@@ -60,24 +61,45 @@ Widget MensajeShowAlert(String body, String from, DateTime recibido) {
   Widget listarMensajes(){
     List<Widget> mensajes = [];
       // Agregar mascotas perdidas
-      if(widget.user.mensajes.isEmpty){
-        return Center(child: Text("No hay Mensajes"),);
-      }
-      for (var mensaje in widget.user.mensajes) {
-          mensajes.add(
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                child: ListTile(
-                  title: Text(mensaje.title, style: TextStyle(fontWeight: FontWeight.bold)),
-                  onTap: (){
-                    _mostrarMensaje(mensaje.title,mensaje.body,mensaje.from,mensaje.timestamp);},
+      return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: this.widget.user.email)
+        .snapshots(),
+      builder: (context, messageSnapshot) {
+        final userDoc = messageSnapshot.data!.docs.first;
+        if (messageSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
+            }
+        List<dynamic> messagesAlerts = userDoc['mensajes'] ?? [];
+        if (messagesAlerts.isEmpty) {
+              return Center(child: Text('No hay mensajes disponibles.'));
+            }
+        else{
+          for (var mensaje in  messagesAlerts) {
+          
+            final titulo = mensaje['title'];
+            final body = mensaje['body'];
+            final from = mensaje['from'];
+            final recibido = mensaje['received'];
+            mensajes.add(
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  child: ListTile(
+                    title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold)),
+                    onTap: (){
+                      _mostrarMensaje(titulo,body,from,recibido);},
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          }
+          return Center(child: Text(mensajes.length.toString()),);
+          return ListView(children: mensajes);
+        }
       }
-    return ListView(children: mensajes);
+    );
   }
     @override
 Widget build(BuildContext context) {
