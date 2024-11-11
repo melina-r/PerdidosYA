@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/home.dart';
+import 'package:perdidos_ya/messages.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'users.dart'; 
 import 'profile.dart';
@@ -26,9 +27,9 @@ class _InicioState extends State<Inicio> {
   @override
   Widget build(BuildContext context) {
     paginas = [
-      HomePage(user: widget.user, context: context,),
+      HomePage(user: widget.user),
       MapPage(user: widget.user),
-      ProfilePage(user: widget.user), //esta luego se reemplaza por la pagina de mensajes
+      MessagesPage(user: widget.user), //esta luego se reemplaza por la pagina de mensajes
       ProfilePage(user: widget.user), 
     ];
     return Scaffold(

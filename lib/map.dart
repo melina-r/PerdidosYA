@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:perdidos_ya/objects/barrios.dart';
 import 'theme.dart';
 import 'package:perdidos_ya/users.dart';
 
@@ -22,15 +21,11 @@ class _MapPageState extends State<MapPage> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    _showReports();
   }
 
   void _showReports() async{
-    User user = widget.user;
-    List<Zona> zones = user.zones;
     // for zonas del usuario agarro los reportes de la zona y lo siguiente
-    // for (var z in zones) {
-      
-    // }
     CollectionReference reports = FirebaseFirestore.instance.collection('Mascotas encontradas');
     QuerySnapshot querySnapshot = await reports.get();
 

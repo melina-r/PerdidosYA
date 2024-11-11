@@ -1,5 +1,4 @@
-
-import 'package:perdidos_ya/objects/barrios.dart';
+import 'package:perdidos_ya/objects/mensaje.dart';
 
 import 'objects/pet.dart';
 import 'objects/report.dart';
@@ -10,11 +9,12 @@ class User {
   String password;
   List<Pet> pets;
   List<Reporte> reportes = [];
-  List<Zona> zones;
+  List<Mensaje> mensajes = [];
+  List<String> zones;
   String icon = 'assets/images/user.png';
   bool notificaciones = true;
 
-  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes, required List<Mensaje> mensajes});
 
   Map<String, dynamic> toMap() {
     return {
@@ -23,22 +23,11 @@ class User {
       'password': password,
       'pets': pets.map((pet) => pet.toMap()).toList(),
       'reportes': reportes.map((reporte) => reporte.toMap()).toList(),
-      'zonas': zones.map((zona) => zonaToString(zona)).toList(),
+      'mensajes': mensajes.map((mensaje) => mensaje.toMap()).toList(),
+      'zones': zones,
       'icon': icon,
       'notificaciones': notificaciones,
     };
-  }
-
-  static User fromMap(Object? userMap) {
-    Map<String, dynamic> map = userMap as Map<String, dynamic>;
-    return User(
-      username: map['username'],
-      email: map['email'],
-      password: map['password'],
-      pets: List<Pet>.from(map['pets'].map((pet) => Pet.fromMap(pet))),
-      reportes: List<Reporte>.from(map['reportes'].map((reporte) => Reporte.fromMap(reporte))),
-      zones: List<Zona>.from(map['zonas'].map((zona) => stringToZona(zona))),
-    );
   }
 
 }
