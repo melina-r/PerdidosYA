@@ -22,24 +22,32 @@ class _MapPageState extends State<MapPage> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    _showReports();
   }
 
   void _showReports() async{
-    User user = widget.user;
-    List<Zona> zones = user.zones;
-    // for zonas del usuario agarro los reportes de la zona y lo siguiente
-    // for (var z in zones) {
-      
-    // }
-    CollectionReference reports = FirebaseFirestore.instance.collection('Mascotas encontradas');
-    QuerySnapshot querySnapshot = await reports.get();
 
-    for (var r in querySnapshot.docs) {
-      String ubicacion = r['ubicacion'] + ', Buenos Aires, Argentina';
-      String titulo = r['titulo'];
-      _addMarkerFromAddress(titulo,ubicacion);
+    CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
+    List<String> listaZonas = widget.user.zones;
+
+    for (var z in listaZonas){
+      QuerySnapshot snapshot = await zonasTotales.where('zona', isEqualTo: z).get();
+  
+      if (snapshot.docs.isNotEmpty) {
+        DocumentReference zonaRef = snapshot.docs.first.reference;
+        DocumentSnapshot zonaDoc = await zonaRef.get();
+        List<dynamic> reportes = zonaDoc['reportes'];
+        
+        for (var reporte in reportes){
+          String titulo = reporte['titulo'];
+          String ubicacion = reporte['ubicacion'] + ', Buenos Aires, Argentina';
+         
+          _addMarkerFromAddress(titulo,ubicacion);
+        }
+      }    
     }
   }
+
 
   Future<void> _addMarkerFromAddress(String titulo,String ubicacion) async {
     try {
