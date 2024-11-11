@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 import 'package:perdidos_ya/objects/barrios.dart';
@@ -31,7 +32,7 @@ class _HomePageState extends State<HomePage> {
     }
     else if(tipoAnuncio == encontrado){
       ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Agrgando a encontrados')),
+                  SnackBar(content: Text('Agregando a encontrados')),
                 );
       tablaBaseDeDatos = 'Mascotas encontradas';
     }
@@ -224,7 +225,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
+Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
     return SizedBox(
       height: 300.0,
       width: 300.0,
@@ -254,7 +255,78 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
+void _enviarMensaje(String usuario, Mensaje mensaje) async {
+    try {
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: usuario)
+        .get();
+
+    if (userSnapshot.docs.isEmpty) {
+      print('Usuario no encontrado');
+      return;
+    }
+
+    DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+    await userDoc.reference.update({
+      'mensajes': FieldValue.arrayUnion([mensaje.toMap()]),
+    });
+    } catch (e) {
+      print('Error al enviar mensaje: $e');
+    }
+}
+
+
+void mandarMensaje(String usuario,BuildContext context){
+    TextEditingController tituloController = TextEditingController();
+    TextEditingController bodyController = TextEditingController();
+    Mensaje finalMensaje = Mensaje(
+      title: "Titulo",
+      body: "Body",
+      from: this.widget.user.username,
+      received: Timestamp.now(),
+    );
+    showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Mensaje'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                decoration: InputDecoration(hintText: 'Titulo'),
+                controller: tituloController,
+              ),
+              TextField(
+                decoration: InputDecoration(hintText: 'Descripción'),
+                controller: bodyController,
+              )
+            ]
+          ),
+        ),
+        actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                finalMensaje.title = tituloController.text;
+                finalMensaje.body =  bodyController.text;
+                _enviarMensaje(usuario, finalMensaje);
+                Navigator.pop(context);
+              },
+              child: Text('Aceptar'),
+            ),
+        ]
+      );
+    }
+  );
+}
+
+  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, String usuario) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -272,6 +344,7 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                mandarMensaje(usuario, context);
               },
               child: const Text('Mandar Mensaje'),
             ),
@@ -344,14 +417,12 @@ void _mostrarFiltros() {
       return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Mascotas perdidas')
-            .orderBy('timestamp', descending: true)
             .where("zona", whereIn: this.widget.user.zones)
             .snapshots(),
         builder: (context, lostSnapshot) {
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('Mascotas encontradas')
-                .orderBy('timestamp', descending: true)
                 .where("zona", whereIn: this.widget.user.zones)
                 .snapshots(),
             builder: (context, foundSnapshot) {
@@ -390,7 +461,7 @@ void _mostrarFiltros() {
                           title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(titulo),
                           onTap: (){
-                            _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
+                            _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user);},
                         ),
                       ),
                     ),
@@ -418,7 +489,7 @@ void _mostrarFiltros() {
                         subtitle: Text(titulo),
                         onTap: (){
                           
-                          _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
+                          _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user);},
                       ),
                     ),
                   ),

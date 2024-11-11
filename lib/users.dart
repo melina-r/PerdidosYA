@@ -9,12 +9,11 @@ class User {
   String password;
   List<Pet> pets;
   List<Reporte> reportes = [];
-  List<Mensaje> mensajes = [];
   List<String> zones;
   String icon = 'assets/images/user.png';
   bool notificaciones = true;
 
-  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes, required List<Mensaje> mensajes});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes});
 
   Map<String, dynamic> toMap() {
     return {
@@ -23,7 +22,6 @@ class User {
       'password': password,
       'pets': pets.map((pet) => pet.toMap()).toList(),
       'reportes': reportes.map((reporte) => reporte.toMap()).toList(),
-      'mensajes': mensajes.map((mensaje) => mensaje.toMap()).toList(),
       'zones': zones,
       'icon': icon,
       'notificaciones': notificaciones,
