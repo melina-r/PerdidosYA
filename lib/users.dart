@@ -1,5 +1,4 @@
-
-import 'package:perdidos_ya/objects/barrios.dart';
+import 'package:perdidos_ya/objects/mensaje.dart';
 
 import 'objects/pet.dart';
 import 'objects/report.dart';
@@ -10,7 +9,7 @@ class User {
   String password;
   List<Pet> pets;
   List<Reporte> reportes = [];
-  List<Zona> zones;
+  List<String> zones;
   String icon = 'assets/images/user.png';
   bool notificaciones = true;
 
@@ -23,22 +22,10 @@ class User {
       'password': password,
       'pets': pets.map((pet) => pet.toMap()).toList(),
       'reportes': reportes.map((reporte) => reporte.toMap()).toList(),
-      'zonas': zones.map((zona) => zonaToString(zona)).toList(),
+      'zones': zones,
       'icon': icon,
       'notificaciones': notificaciones,
     };
-  }
-
-  static User fromMap(Object? userMap) {
-    Map<String, dynamic> map = userMap as Map<String, dynamic>;
-    return User(
-      username: map['username'],
-      email: map['email'],
-      password: map['password'],
-      pets: List<Pet>.from(map['pets'].map((pet) => Pet.fromMap(pet))),
-      reportes: List<Reporte>.from(map['reportes'].map((reporte) => Reporte.fromMap(reporte))),
-      zones: List<Zona>.from(map['zonas'].map((zona) => stringToZona(zona))),
-    );
   }
 
 }
