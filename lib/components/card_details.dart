@@ -59,6 +59,7 @@ class PetDetails extends CardDetails {
       Text("Edad: ${petInfo.ageString}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
       Text("Tamaño: ${petInfo.sizeString}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
       Text("Color: ${petInfo.color}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+      Text("Raza: ${petInfo.razaString}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       SizedBox(height: 20),
       Text((petInfo.description != null) ? "${petInfo.description}" : "Sin descripción.", style: TextStyle(fontSize: 18),), 
     ];

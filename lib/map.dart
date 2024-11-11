@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:perdidos_ya/objects/barrios.dart';
 import 'theme.dart';
 import 'package:perdidos_ya/users.dart';
 
@@ -25,6 +26,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _showReports() async{
+
     CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
     List<String> listaZonas = widget.user.zones;
 
