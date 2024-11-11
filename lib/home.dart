@@ -50,27 +50,27 @@ class HomePage extends StatelessWidget {
   void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
     Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user);
 
-  try {
-    // Obtener la referencia a la colección 'Zonas'
-    CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
+    try {
+      // Obtener la referencia a la colección 'Zonas'
+      CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
 
-    // Buscar el documento que contiene la zona buscada
-    QuerySnapshot snapshot = await zonasRef.where('zona', isEqualTo: zonaBuscada).get();
+      // Buscar el documento que contiene la zona buscada
+      QuerySnapshot snapshot = await zonasRef.where('zona', isEqualTo: zonaBuscada).get();
 
-    if (snapshot.docs.isNotEmpty) {
-      // Obtener el primer documento que coincide con la búsqueda
-      DocumentReference zonaRef = snapshot.docs.first.reference;
+      if (snapshot.docs.isNotEmpty) {
+        // Obtener el primer documento que coincide con la búsqueda
+        DocumentReference zonaRef = snapshot.docs.first.reference;
 
-      // Actualizar el campo 'reportes' en el documento encontrado
-      await zonaRef.update({
-        'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
-      });
+        // Actualizar el campo 'reportes' en el documento encontrado
+        await zonaRef.update({
+          'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
+        });
 
-      print("Reporte agregado al array con éxito");
-    } else {
-      print("No se encontró la zona: $zonaBuscada");
-    }
-  } catch (error) {
+        print("Reporte agregado al array con éxito");
+      } else {
+        print("No se encontró la zona: $zonaBuscada");
+      }
+    } catch (error) {
     print("Error al agregar el reporte: $error");
   }
 }
