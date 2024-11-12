@@ -9,8 +9,9 @@ class Reporte {
   String descripcion;
   dynamic timestamp;
   String user;
+  String imageUrl;
 
-  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.timestamp, required this.user});
+  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.timestamp, required this.user, required this.imageUrl});
 
   factory Reporte.fromMap(Map<String, dynamic> reporte) {
     return Reporte(
@@ -22,6 +23,7 @@ class Reporte {
       descripcion: reporte['descripcion'] ?? '',
       timestamp: reporte['timestamp'],
       user: reporte['user'],
+      imageUrl: reporte['imageUrl']
     );
   }
 
@@ -35,6 +37,7 @@ class Reporte {
       'descripcion': descripcion,
       'timestamp': timestamp,
       'user': user,
+      'imageUrl': imageUrl,
     };
   }
 }

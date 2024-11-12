@@ -6,6 +6,9 @@ import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/report.dart';
+import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:convert';
 
 
 class HomePage extends StatefulWidget {
@@ -24,8 +27,10 @@ class _HomePageState extends State<HomePage> {
   bool mostrarBaseEncontrados = true;
   final String baseMostrada = "Mascotas perdidas";
   final String queryLista = "";
+  final String ImageCatAPI = "https://api.thecatapi.com/v1/images/search";
+  final String ImageDogAPI = "https://dog.ceo/api/breeds/image/random";
 
-  void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int tipoAnuncio) {
+  void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int tipoAnuncio, String? imageUrl) {
     String tablaBaseDeDatos = '';
     if(tipoAnuncio == perdido){
         tablaBaseDeDatos = 'Mascotas perdidas';
@@ -45,7 +50,8 @@ class _HomePageState extends State<HomePage> {
       raza: raza,
       especie: especie,
       timestamp: FieldValue.serverTimestamp(),
-      user: widget.user.username
+      user: widget.user.username,
+      imageUrl: imageUrl!,
       );
 
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
@@ -72,9 +78,25 @@ class _HomePageState extends State<HomePage> {
 //   }
 // }
 
-  
+Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) async {
+  String? imageUrl;
+    final response = await http.get(Uri.parse(urlAPI));
+    if (response.statusCode == 200) {
+      dynamic data = json.decode(response.body);
+      if(especieElegida == 'Gato'){
+        print(data);
+        imageUrl =  data.isNotEmpty ? data[0]['url'] : null;
+      }else{
+        print(data);
+        imageUrl =  data['message'];
+      }
+      return imageUrl;
+    }else {
+      throw Exception('Failed to load image');
+    }
+}
 
-  void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) {
+  void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) async {
     String titulo = '';
     String descripcion = '';
     String raza = '';
@@ -86,19 +108,30 @@ class _HomePageState extends State<HomePage> {
     bool botonPerroPresionado = false;
     final zonas = Zona.values;
     Zona? zonaElegida;
+    String urlAPI = 'vacio';
+    String? imageUrl;
     
 
-    showDialog(
+  await showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext context){
         return AlertDialog(
           title: const Text('Agregar Anuncio'),
           content:SingleChildScrollView(
             child: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setDialogState) {
+            builder: (BuildContext context, StateSetter setDialogState){
                     return  Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                     Center(
+                    child: imageUrl == null
+                        ? CircularProgressIndicator() // Si imageUrl es null, mostrar el indicador de carga
+                        : CachedNetworkImage(
+                            imageUrl: imageUrl!,
+                            placeholder: (context, url) => CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => Icon(Icons.error),
+                          ),
+                  ),
                       TextField(
                         decoration: InputDecoration(labelText: 'Título'),
                         onChanged: (value) {
@@ -119,12 +152,15 @@ class _HomePageState extends State<HomePage> {
                           height:80,
                           child: IconButton(
                             icon: Icon(FontAwesomeIcons.cat),
-                            onPressed: () {
+                            onPressed: () async{
                               setDialogState(() {
                                 botonGatoPresionado = true;
                                 botonPerroPresionado = false;
+                                urlAPI = ImageCatAPI;
                                 especieSeleccionada = especies[0];
                               });
+                              imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
+                              setDialogState(() {});
                             },
                             style: IconButton.styleFrom(
                               backgroundColor: botonGatoPresionado? colorPrincipalDos:colorSecundarioUno
@@ -138,12 +174,15 @@ class _HomePageState extends State<HomePage> {
                           height: 80,
                           child: IconButton(
                             icon: Icon(FontAwesomeIcons.dog),
-                            onPressed: () {
+                            onPressed: () async {
                               setDialogState(() {
                                 botonGatoPresionado = false;
                                 botonPerroPresionado = true;
+                                urlAPI = ImageDogAPI;
                                 especieSeleccionada = especies[1];
                               });
+                              imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
+                              setDialogState(() {});
                             },
                             style: IconButton.styleFrom(
                               backgroundColor: botonPerroPresionado?colorPrincipalDos:colorSecundarioUno
@@ -213,8 +252,8 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
-                _agregarAnuncio(titulo, descripcion, zona, ubicacion, especieSeleccionada, raza, tipoAnuncio);
+              onPressed: (){
+                _agregarAnuncio(titulo, descripcion, zona, ubicacion, especieSeleccionada, raza, tipoAnuncio, imageUrl);
                 Navigator.of(context).pop();
               },
               child: const Text('Agregar'),
@@ -223,7 +262,7 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-  }
+}
 
 Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
     return SizedBox(
