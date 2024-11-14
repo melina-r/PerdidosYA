@@ -1,80 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:perdidos_ya/components/card_details.dart';
-import 'package:perdidos_ya/components/profile_picture.dart';
+import 'package:perdidos_ya/components/profile_app_bar.dart';
+import 'package:perdidos_ya/components/profile_pic.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
+import 'package:perdidos_ya/components/username.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
-import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
-import 'package:perdidos_ya/users.dart';
+import 'package:perdidos_ya/users.dart' as users;
 
-class ProfilePage extends StatelessWidget {
-  final User user;
+class ProfilePage extends StatefulWidget {
+  final users.User user;
 
   const ProfilePage({required this.user});
 
   @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: colorTerciario,
-        appBar: AppBar(
-          backgroundColor: colorTerciario,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.settings, size: 40,),
-              color: colorPrincipalUno,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfileSettings(user: user,),
-                  ),
-                );
-              },
+    return Scaffold(
+      appBar: ProfileAppBar(),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            ProfilePic(user: widget.user),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Username(username: widget.user.username),
+                Column(
+                  children: [
+                    ToggleList(sections: [
+                      ToggleData(
+                        icon: Icons.map,
+                        title: "Zonas preferidas", 
+                        content: widget.user.zones.map((zone) => ListTile(
+                          title: Text(zonaToString(zone), style: TextStyle(fontSize: 20)),
+                        )).toList()
+                      ),
+                      ToggleData(
+                        icon: Icons.pets, 
+                        title: "Mis mascotas", 
+                        content: widget.user.pets.map((pet) => ListTile(
+                          title: Text(pet.name, style: TextStyle(fontSize: 20)),
+                          leading: Icon(Icons.arrow_outward),
+                          onTap: () {},
+                        )).toList()
+                      ),
+                      ToggleData(
+                        icon: Icons.assistant_photo,
+                        title: "Mis reportes",
+                        content: widget.user.reportes.map((report) => ListTile(
+                          title: Text(report.titulo, style: TextStyle(fontSize: 20)),
+                          leading: Icon(Icons.arrow_outward),
+                          onTap: () {},
+                        )).toList()
+                      )
+                    ])
+                  ],
+                )
+          
+              ],
             ),
           ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: 30),
-              ProfilePicture(username: user.username),
-              SizedBox(height: 20),
-              Text(
-                '@${user.username}',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              ToggleList(
-                sections: [
-                  ToggleData(
-                    icon: Icons.pets,
-                    title: 'Mascotas',
-                    content: [
-                    ...user.pets.map((pet) => PetDetails(petInfo: pet)),
-                    ],
-                  ),
-                  ToggleData(
-                    icon: Icons.location_on,
-                    title: 'Zonas preferidas',
-                    content: [
-                      ...user.zones.map((zona) => ListTile(title: Text(zonaToString(zona)))),
-                    ],
-                  ),
-                  ToggleData(
-                    icon: Icons.announcement,
-                    title: 'Mis anuncios',
-                    content: [
-                      ...user.reportes.map((report) => ListTile(title: Text(report.titulo))),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );
   }
 }
+

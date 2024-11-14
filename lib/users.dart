@@ -11,10 +11,10 @@ class User {
   List<Pet> pets;
   List<Reporte> reportes = [];
   List<Zona> zones;
-  String icon = 'lib/assets/images/user.png';
+  String icon;
   bool notificaciones = true;
 
-  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes, required this.icon});
 
   Map<String, dynamic> toMap() {
     return {
@@ -38,6 +38,7 @@ class User {
       pets: List<Pet>.from(map['pets'].map((pet) => Pet.fromMap(pet))),
       reportes: List<Reporte>.from(map['reportes'].map((reporte) => Reporte.fromMap(reporte))),
       zones: List<Zona>.from(map['zonas'].map((zona) => stringToZona(zona))),
+      icon: map.containsKey("icon")? map['icon'] : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
     );
   }
 
