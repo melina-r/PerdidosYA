@@ -14,31 +14,44 @@ class EditPetsDialog extends StatelessWidget {
       content: SingleChildScrollView(
         child: Column(
           children: [
-            ...user.pets.map((pet) => ListTile(
-              title: Text(pet.name),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  EditPetButton(
-                    user: user,
-                    pet: pet,
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      user.pets.remove(pet);
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
+            ...user.pets.map((pet) => SizedBox(
+            width: 500,
+            child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(pet.name, style: TextStyle(fontSize: 24),),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => EditPetDialog(pet: pet, user: user),
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            user.pets.remove(pet);
+                            user.updateDatabase();
+                          },
+                        ),
+                      ],
+                    )
+                    
+                  ],
+                ),
               ),
-            )),
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => EditPetButton(user: user),
+                  builder: (context) => EditPetDialog(user: user),
                 );
               },
               child: Text("Agregar nueva mascota"),
@@ -56,40 +69,17 @@ class EditPetsDialog extends StatelessWidget {
   }
 }
 
-class EditPetButton extends StatelessWidget {
-  final User user;
-  final Pet? pet;
-
-  const EditPetButton({super.key, required this.user, this.pet});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.edit),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => PetInfoDialog(
-            pet: pet,
-            user: user,
-          ),
-        );
-      },
-    );
-  }
-}
-
-class PetInfoDialog extends StatefulWidget {
+class EditPetDialog extends StatefulWidget {
   final Pet? pet;
   final User user;
 
-  const PetInfoDialog({super.key, this.pet, required this.user});
+  const EditPetDialog({super.key, this.pet, required this.user});
 
   @override
-  State<PetInfoDialog> createState() => _PetInfoDialogState();
+  State<EditPetDialog> createState() => _EditPetDialog();
 }
 
-class _PetInfoDialogState extends State<PetInfoDialog> {
+class _EditPetDialog extends State<EditPetDialog> {
   late Pet petInfo;
   late String title;
   late bool isDog = petInfo.especie == Especie.perro;
@@ -206,6 +196,7 @@ class _PetInfoDialogState extends State<PetInfoDialog> {
               } else {
                 widget.user.pets[widget.user.pets.indexOf(widget.pet!)] = petInfo;
               }
+              widget.user.updateDatabase();
               Navigator.pop(context);
             },
             child: Text('Aceptar'),

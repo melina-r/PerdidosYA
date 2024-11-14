@@ -13,16 +13,10 @@ class EditUsername extends StatelessWidget {
 
     return AlertDialog(
       title: Text("Modificar nombre de usuario"),
-      content: SingleChildScrollView(
-        child: Column(
-          children: [
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: "Nombre de usuario",
-              ),
-            ),
-          ],
+      content: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: "Nombre de usuario",
         ),
       ),
       actions: [
