@@ -4,6 +4,7 @@ import 'package:perdidos_ya/components/profile_pic.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
 import 'package:perdidos_ya/components/username.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
+import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 
@@ -16,11 +17,40 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      () async => await widget.user.loadFromDatabase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ProfileAppBar(),
+      appBar: CustomAppBar(
+        user: widget.user,
+        title: "Perfil",
+        icon: Icon(Icons.settings, color: colorPrincipalUno, size: 30),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileSettings(user: widget.user)),
+          );
+        },
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,

@@ -12,6 +12,14 @@ class ProfilePic extends StatefulWidget {
 }
 
 class _ProfilePicState extends State<ProfilePic> {
+  late users.User user;
+
+  @override
+  void initState() {
+    super.initState();
+    user = widget.user;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -21,7 +29,7 @@ class _ProfilePicState extends State<ProfilePic> {
           Padding(padding: EdgeInsets.all(20), child: 
             CircleAvatar(
               radius: 75,
-              backgroundImage: NetworkImage(widget.user.icon),
+              backgroundImage: NetworkImage(user.icon),
               backgroundColor: colorPrincipalDos,
             ),
           ),
@@ -36,7 +44,49 @@ class _ProfilePicState extends State<ProfilePic> {
                 color: colorSecundarioUno
               ),
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  showDialog(
+                    context: context, 
+                    builder: (BuildContext context) {
+                      TextEditingController controller = TextEditingController();
+                      return AlertDialog(
+                        title: const Text('Cambiar foto de perfil'),
+                        content: 
+                        TextField(
+                          controller: controller,
+                          decoration: const InputDecoration(
+                            labelText: 'URL de la imagen',
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (controller.text.isEmpty) {
+                                return;
+                              }
+                              
+                              user.icon = controller.text;
+
+                              user.updateDatabase();
+                              () async => await user.loadFromDatabase();
+
+                              setState(() {});
+                              
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Aceptar'),
+                          ),
+                        ],
+                      );
+                    }
+                  );
+                },
                 child: Icon(
                   Icons.edit,
                   color: colorTerciario,

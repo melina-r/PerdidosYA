@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:perdidos_ya/profile_settings.dart';
+import 'package:perdidos_ya/theme.dart';
+import 'package:perdidos_ya/users.dart';
 
-class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final Widget icon;
+  final Function()? onPressed;
+  final User user;
+
+  const CustomAppBar({super.key, required this.user, required this.title, required this.icon, this.onPressed});
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.all(8.0),
         child:
-          Text(
-            'Perfil', style: TextStyle(
+          Text(title, 
+          style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
+              color: colorPrincipalUno,
             ),
           ),
       ),
@@ -18,8 +29,8 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
         Padding(padding: EdgeInsets.only(right: 10),
         child: 
           IconButton(
-            icon: Icon(Icons.logout, size: 36,),
-            onPressed: () {},
+            icon: icon,
+            onPressed: onPressed,
           ),
         )
       ],

@@ -1,4 +1,6 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
 
 import 'objects/pet.dart';
@@ -40,6 +42,25 @@ class User {
       zones: List<Zona>.from(map['zonas'].map((zona) => stringToZona(zona))),
       icon: map.containsKey("icon")? map['icon'] : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
     );
+  }
+
+  Future<void> loadFromDatabase() async {
+    final currentUserid = FirebaseAuth.instance.currentUser!.uid;
+    await FirebaseFirestore.instance.collection('users').doc(currentUserid).get().then((value) {
+      var user = User.fromMap(value.data());
+      username = user.username;
+      email = user.email;
+      password = user.password;
+      pets = user.pets;
+      reportes = user.reportes;
+      zones = user.zones;
+      icon = user.icon;
+      notificaciones = user.notificaciones;
+    });
+  }
+
+  void updateDatabase() {
+    FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).update(toMap());
   }
 
 }
