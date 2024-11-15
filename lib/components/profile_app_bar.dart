@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart';
 

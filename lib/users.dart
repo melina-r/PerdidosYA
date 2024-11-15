@@ -59,8 +59,9 @@ class User {
     });
   }
 
-  void updateDatabase() {
-    FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).update(toMap());
+  Future<void> updateDatabase() async {
+    final userId = (await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).get()).docs.first.id;
+    FirebaseFirestore.instance.collection('users').doc(userId).update(toMap());
   }
 
 }
