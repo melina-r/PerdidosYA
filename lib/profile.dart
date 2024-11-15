@@ -5,7 +5,6 @@ import 'package:perdidos_ya/components/profile_pic.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
 import 'package:perdidos_ya/components/username.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
-import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;

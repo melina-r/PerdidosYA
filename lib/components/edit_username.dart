@@ -1,4 +1,5 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/users.dart';
 
@@ -29,7 +30,27 @@ class EditUsername extends StatelessWidget {
           child: Text('Cancelar'),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
+            if (controller.text.isEmpty) return;
+            if (await _exists(controller.text)) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text("Error"),
+                  content: Text("El nombre de usuario ya existe"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Aceptar'),
+                    ),
+                  ],
+                ),
+              );
+              return;
+            }
+            
             user.username = controller.text;
             user.updateDatabase();
             refreshSettings();
@@ -40,5 +61,13 @@ class EditUsername extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<bool> _exists(String username) async {
+    final users = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+    return users.docs.isNotEmpty;
   }
 }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/report.dart';
-import 'objects/pet.dart';
 import 'registro.dart'; 
 import 'inicio.dart'; 
 import 'users.dart' as users;
