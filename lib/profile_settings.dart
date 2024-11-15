@@ -3,7 +3,7 @@ import 'package:perdidos_ya/components/edit_username.dart';
 import 'package:perdidos_ya/components/edit_zones.dart';
 import 'package:perdidos_ya/components/edit_pets.dart';
 import 'package:perdidos_ya/components/logout_alert.dart';
-import 'package:perdidos_ya/components/profile_app_bar.dart';
+import 'package:perdidos_ya/components/custom_appbar.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;

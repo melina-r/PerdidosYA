@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/card_details.dart';
-import 'package:perdidos_ya/components/profile_app_bar.dart';
+import 'package:perdidos_ya/components/custom_appbar.dart';
 import 'package:perdidos_ya/components/profile_pic.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
 import 'package:perdidos_ya/components/username.dart';
@@ -85,7 +85,6 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                     ])
                   ],
                 )
-          
               ],
             ),
           ],
