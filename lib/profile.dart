@@ -52,41 +52,43 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           );
         },
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            ProfilePic(user: widget.user),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Username(username: widget.user.username),
-                Column(
-                  children: [
-                    ToggleList(sections: [
-                      ToggleData(
-                        icon: Icons.map,
-                        title: "Zonas preferidas", 
-                        content: widget.user.zones.map((zone) => ListTile(
-                          title: Text(zonaToString(zone), style: TextStyle(fontSize: 20)),
-                        )).toList()
-                      ),
-                      ToggleData(
-                        icon: Icons.pets, 
-                        title: "Mis mascotas", 
-                        content: [...widget.user.pets.map((pet) => PetDetails(petInfo: pet))],
-                      ),
-                      ToggleData(
-                        icon: Icons.assistant_photo,
-                        title: "Mis reportes",
-                        content: [...widget.user.reportes.map((report) => ReportDetails(reportInfo: report))],
-                      )
-                    ])
-                  ],
-                )
-              ],
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              ProfilePic(user: widget.user),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Username(username: widget.user.username),
+                  Column(
+                    children: [
+                      ToggleList(sections: [
+                        ToggleData(
+                          icon: Icons.map,
+                          title: "Zonas preferidas", 
+                          content: widget.user.zones.map((zone) => ListTile(
+                            title: Text(zonaToString(zone), style: TextStyle(fontSize: 20)),
+                          )).toList()
+                        ),
+                        ToggleData(
+                          icon: Icons.pets, 
+                          title: "Mis mascotas", 
+                          content: [...widget.user.pets.map((pet) => PetDetails(petInfo: pet))],
+                        ),
+                        ToggleData(
+                          icon: Icons.assistant_photo,
+                          title: "Mis reportes",
+                          content: [...widget.user.reportes.map((report) => ReportDetails(reportInfo: report))],
+                        )
+                      ])
+                    ],
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
