@@ -10,8 +10,9 @@ import 'package:perdidos_ya/users.dart' as users;
 
 class ProfileSettings extends StatefulWidget {
   final users.User user;
+  final Function() refreshProfile;
 
-  const ProfileSettings({super.key, required this.user});
+  const ProfileSettings({super.key, required this.user, required this.refreshProfile});
 
   @override
   _ProfileSettingsState createState() => _ProfileSettingsState();
@@ -21,6 +22,11 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void _refresh() {
+    widget.user.loadFromDatabase();
+    setState(() {});
   }
 
   @override
@@ -55,7 +61,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         showDialog(
                           context: context,
                           builder: (context) {
-                            return EditUsername(user: widget.user);
+                            return EditUsername(user: widget.user, refreshSettings: _refresh, refreshProfile: widget.refreshProfile);
                           }
                         );
                       }
@@ -83,9 +89,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                       trailing: Switch(
                         value: widget.user.notificaciones,
                         onChanged: (bool value) {
-                            setState(() {
-                              widget.user.notificaciones = value;
-                            });
+                            widget.user.notificaciones = value;
+                            widget.user.updateDatabase();
+                            widget.refreshProfile();
+                            setState(() {});
                         },
                       ),
                     )
@@ -104,7 +111,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     showDialog(
       context: context,
       builder: (context) {
-        return EditZoneDialog(user: widget.user);
+        return ListZoneDialog(user: widget.user, refreshSettings: _refresh, refreshProfile: widget.refreshProfile);
       },
     );
   }
@@ -113,7 +120,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     showDialog(
       context: context,
       builder: (context) {
-        return EditPetsDialog(user: widget.user);
+        return ListPetsDialog(user: widget.user, refreshSettings: _refresh, refreshProfile: widget.refreshProfile);
       }
     );
   }    

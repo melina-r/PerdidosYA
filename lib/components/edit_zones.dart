@@ -4,8 +4,11 @@ import 'package:perdidos_ya/users.dart';
 
 class AddZoneButton extends StatelessWidget {
   final User user;
-
-  const AddZoneButton({required this.user});
+  final Function() refreshList;
+  final Function() refreshSettings;
+  final Function() refreshProfile;
+  
+  const AddZoneButton({required this.user, required this.refreshSettings, required this.refreshProfile, required this.refreshList});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +42,9 @@ class AddZoneButton extends StatelessWidget {
                     if (newZone == null) return;
                     user.zones.add(newZone!);
                     user.updateDatabase();
-                    
+                    refreshList();
+                    refreshSettings();
+                    refreshProfile();
                     Navigator.of(context).pop();
                   }, 
                   child: Text('Aceptar')
@@ -54,11 +59,18 @@ class AddZoneButton extends StatelessWidget {
   }
 }
 
-class EditZoneDialog extends StatelessWidget {
+class ListZoneDialog extends StatefulWidget {
   final User user;
+  final Function() refreshSettings;
+  final Function() refreshProfile;
 
-  const EditZoneDialog({required this.user});
+  const ListZoneDialog({required this.user, required this.refreshSettings, required this.refreshProfile});
 
+  @override
+  State<ListZoneDialog> createState() => _ListZoneDialogState();
+}
+
+class _ListZoneDialogState extends State<ListZoneDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -66,21 +78,27 @@ class EditZoneDialog extends StatelessWidget {
       content: SingleChildScrollView(
         child: Column(
           children: [
-            ...user.zones.map(
+            ...widget.user.zones.map(
               (zone) => ListTile(
                 title: Text(zonaToString(zone)),
                 trailing: IconButton(
                   icon: Icon(Icons.close),
                   onPressed: () {
-                    user.zones.remove(zone);
-                    user.updateDatabase();
+                    widget.user.zones.remove(zone);
+                    widget.user.updateDatabase();
+                    widget.refreshSettings();
+                    widget.refreshProfile();
+                    setState(() {});
                   },
                 ),
               )
             ),
             SizedBox(height: 20),
             AddZoneButton(
-              user: user,
+              user: widget.user,
+              refreshList: () => setState(() {}),
+              refreshSettings: widget.refreshSettings,
+              refreshProfile: widget.refreshProfile,
             ),
           ],
         ),

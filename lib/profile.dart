@@ -47,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ProfileSettings(user: widget.user)),
+            MaterialPageRoute(builder: (context) => ProfileSettings(user: widget.user, refreshProfile: () => setState(() {}))),
           );
         },
       ),

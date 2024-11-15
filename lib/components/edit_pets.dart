@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/users.dart';
 
-class EditPetsDialog extends StatelessWidget {
+class ListPetsDialog extends StatefulWidget {
   final User user;
+  final Function() refreshSettings;
+  final Function() refreshProfile;
 
-  const EditPetsDialog({required this.user});
+  const ListPetsDialog({required this.user, required this.refreshSettings, required this.refreshProfile});
 
+  @override
+  State<ListPetsDialog> createState() => _ListPetsDialogState();
+}
+
+class _ListPetsDialogState extends State<ListPetsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -14,7 +21,7 @@ class EditPetsDialog extends StatelessWidget {
       content: SingleChildScrollView(
         child: Column(
           children: [
-            ...user.pets.map((pet) => SizedBox(
+            ...widget.user.pets.map((pet) => SizedBox(
             width: 500,
             child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -28,15 +35,24 @@ class EditPetsDialog extends StatelessWidget {
                           onPressed: () {
                             showDialog(
                               context: context,
-                              builder: (context) => EditPetDialog(pet: pet, user: user),
+                              builder: (context) => EditPetDialog(
+                                pet: pet, 
+                                user: widget.user, 
+                                refreshList: () => setState(() {}), 
+                                refreshProfile: widget.refreshProfile,
+                                refreshSettings: widget.refreshSettings
+                              ),
                             );
                           },
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete),
+                          icon: Icon(Icons.close),
                           onPressed: () {
-                            user.pets.remove(pet);
-                            user.updateDatabase();
+                            widget.user.pets.remove(pet);
+                            widget.user.updateDatabase();
+                            widget.refreshSettings();
+                            widget.refreshProfile();
+                            setState(() {});
                           },
                         ),
                       ],
@@ -51,7 +67,12 @@ class EditPetsDialog extends StatelessWidget {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => EditPetDialog(user: user),
+                  builder: (context) => EditPetDialog(
+                    user: widget.user, 
+                    refreshList: () => setState(() {}),
+                    refreshSettings: widget.refreshSettings,
+                    refreshProfile: widget.refreshProfile,
+                  ),
                 );
               },
               child: Text("Agregar nueva mascota"),
@@ -72,8 +93,11 @@ class EditPetsDialog extends StatelessWidget {
 class EditPetDialog extends StatefulWidget {
   final Pet? pet;
   final User user;
+  final Function() refreshProfile;
+  final Function() refreshSettings;
+  final Function() refreshList;
 
-  const EditPetDialog({super.key, this.pet, required this.user});
+  const EditPetDialog({super.key, this.pet, required this.user, required this.refreshSettings, required this.refreshList, required this.refreshProfile});
 
   @override
   State<EditPetDialog> createState() => _EditPetDialog();
@@ -137,7 +161,10 @@ class _EditPetDialog extends State<EditPetDialog> {
                 onChanged: (value) {
                   petInfo.especie = Especie.values[value!];
                   isDog = value == Especie.perro.index;
-                  razaList = isDog ? RazaPerro.values : RazaGato.values;
+                  final raza = isDog ? RazaPerro.values : RazaGato.values;
+                  setState(() {
+                    razaList = raza;
+                  });
                 },
               ),
               DropdownButtonFormField<int>(
@@ -197,6 +224,9 @@ class _EditPetDialog extends State<EditPetDialog> {
                 widget.user.pets[widget.user.pets.indexOf(widget.pet!)] = petInfo;
               }
               widget.user.updateDatabase();
+              widget.refreshList();
+              widget.refreshSettings();
+              widget.refreshProfile();
               Navigator.pop(context);
             },
             child: Text('Aceptar'),

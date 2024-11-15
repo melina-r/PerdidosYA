@@ -4,8 +4,10 @@ import 'package:perdidos_ya/users.dart';
 
 class EditUsername extends StatelessWidget {
   final User user;
+  final Function() refreshSettings;
+  final Function() refreshProfile;
 
-  const EditUsername({required this.user});
+  const EditUsername({required this.user, required this.refreshSettings, required this.refreshProfile});
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,8 @@ class EditUsername extends StatelessWidget {
           onPressed: () {
             user.username = controller.text;
             user.updateDatabase();
+            refreshSettings();
+            refreshProfile();
             Navigator.pop(context);
           },
           child: Text('Aceptar'),
