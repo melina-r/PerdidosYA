@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:perdidos_ya/objects/barrios.dart';
 import 'theme.dart';
 import 'package:perdidos_ya/users.dart';
 
@@ -25,16 +26,28 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _showReports() async{
-    // for zonas del usuario agarro los reportes de la zona y lo siguiente
-    CollectionReference reports = FirebaseFirestore.instance.collection('Mascotas encontradas');
-    QuerySnapshot querySnapshot = await reports.get();
 
-    for (var r in querySnapshot.docs) {
-      String ubicacion = r['ubicacion'] + ', Buenos Aires, Argentina';
-      String titulo = r['titulo'];
-      _addMarkerFromAddress(titulo,ubicacion);
+    CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
+    List<String> listaZonas = widget.user.zones;
+
+    for (var z in listaZonas){
+      QuerySnapshot snapshot = await zonasTotales.where('zona', isEqualTo: z).get();
+  
+      if (snapshot.docs.isNotEmpty) {
+        DocumentReference zonaRef = snapshot.docs.first.reference;
+        DocumentSnapshot zonaDoc = await zonaRef.get();
+        List<dynamic> reportes = zonaDoc['reportes'];
+        
+        for (var reporte in reportes){
+          String titulo = reporte['titulo'];
+          String ubicacion = reporte['ubicacion'] + ', Buenos Aires, Argentina';
+         
+          _addMarkerFromAddress(titulo,ubicacion);
+        }
+      }    
     }
   }
+
 
   Future<void> _addMarkerFromAddress(String titulo,String ubicacion) async {
     try {
