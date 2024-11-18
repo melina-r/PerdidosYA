@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:perdidos_ya/objects/barrios.dart';
-import 'package:perdidos_ya/objects/mensaje.dart';
-import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/objects/report.dart';
 import 'registro.dart'; 
 import 'inicio.dart'; 
@@ -105,17 +102,11 @@ class LoginPage extends StatelessWidget {
       var encontrados = encontradosSnapshot.docs;
 
       var reportesTotales = perdidos + encontrados;
+      List<Reporte> reportes = reportesTotales.map((reporte) => Reporte.fromMap(reporte.data())).toList();
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      userData['reportes'] = reportes;
 
-
-      users.User user = users.User(
-        username: userDoc['username'],
-        email: userDoc['email'],
-        password: userDoc['password'],
-        pets: List<Pet>.from(userDoc['mascotas'].map((mascota) => Pet.fromMap(mascota))),
-        reportes: List<Reporte>.from(reportesTotales.map((reporte) => Reporte.fromMap(reporte.data()))),
-        zones: List<Zona>.from(userDoc['zonas'].map((zona) => stringToZona(zona))),
-        icon: userDoc['icon'],
-      );
+      users.User user = users.User.fromMap(userData);
 
       Navigator.pushReplacement(
         context,

@@ -1,4 +1,3 @@
-import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
@@ -10,12 +9,12 @@ class User {
   String email;
   String password;
   List<Pet> pets;
-  List<Reporte> reportes = [];
+  List<Reporte> reports = [];
   List<Zona> zones;
   String icon;
-  bool notificaciones = true;
+  bool notifications = true;
 
-  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required List<Reporte> reportes, required this.icon});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required this.reports, required this.icon, required this.notifications});
 
   Map<String, dynamic> toMap() {
     return {
@@ -23,23 +22,28 @@ class User {
       'email': email,
       'password': password,
       'pets': pets.map((pet) => pet.toMap()).toList(),
-      'reportes': reportes.map((reporte) => reporte.toMap()).toList(),
-      'zones': zones,
+      'reportes': reports.map((report) => report.toMap()).toList(),
+      'zones': zones.map((zona) => zonaToString(zona)).toList(),
       'icon': icon,
-      'notificaciones': notificaciones,
+      'notifications': notifications,
     };
   }
-  
+
+  static bool isNotEmpty(Map<String, dynamic> map, String key) {
+    return map.containsKey(key) && map[key].length > 0;
+  }
+
   static User fromMap(Object? userMap) {
     Map<String, dynamic> map = userMap as Map<String, dynamic>;
     return User(
       username: map['username'],
       email: map['email'],
       password: map['password'],
-      pets: List<Pet>.from(map['pets'].map((pet) => Pet.fromMap(pet))),
-      reportes: List<Reporte>.from(map['reportes'].map((reporte) => Reporte.fromMap(reporte))),
-      zones: List<Zona>.from(map['zonas'].map((zona) => stringToZona(zona))),
+      pets: isNotEmpty(map, 'pets') ? List<Pet>.from(map['pets'].map((pet) => Pet.fromMap(pet))) : [],
+      reports: isNotEmpty(map, 'reports') ? List<Reporte>.from(map['reports'].map((reporte) => Reporte.fromMap(reporte))) : [],
+      zones: isNotEmpty(map, 'zones') ? List<Zona>.from(map['zones'].map((zona) => stringToZona(zona))) : [],
       icon: map.containsKey("icon")? map['icon'] : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
+      notifications: map['notifications'],
     );
   }
 
@@ -51,10 +55,10 @@ class User {
       email = user.email;
       password = user.password;
       pets = user.pets;
-      reportes = user.reportes;
+      reports = user.reports;
       zones = user.zones;
       icon = user.icon;
-      notificaciones = user.notificaciones;
+      notifications = user.notifications;
     });
   }
 

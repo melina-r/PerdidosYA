@@ -88,15 +88,17 @@ class RegisterPage extends StatelessWidget {
       _showMessage(context, 'El nombre de usuario ya está en uso.');
       return;
     }
-  
 
     await FirebaseFirestore.instance.collection('users').add({
       'username': name,
       'email': email,
       'password': password,
-      'zonas': [],
-      'mascotas': [],
-      'mensajes': [],
+      'zones': [],
+      'pets': [],
+      'messages': [],
+      'reports': [],
+      'icon': 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
+      'notifications': true,
     });
 
     Navigator.pushReplacement(
