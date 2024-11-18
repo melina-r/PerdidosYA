@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/card_details.dart';
 import 'package:perdidos_ya/components/profile_picture.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
+import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart';
@@ -58,7 +59,7 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.location_on,
                     title: 'Zonas preferidas',
                     content: [
-                      ...user.zones.map((zona) => ListTile(title: Text(zona))),
+                      ...user.zones.map((zona) => ListTile(title: Text(zonaToString(zona)))),
                     ],
                   ),
                   ToggleData(

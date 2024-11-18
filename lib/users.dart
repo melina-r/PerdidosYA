@@ -1,5 +1,5 @@
 import 'package:perdidos_ya/objects/mensaje.dart';
-
+import 'package:perdidos_ya/objects/barrios.dart';
 import 'objects/pet.dart';
 import 'objects/report.dart';
 
@@ -9,7 +9,7 @@ class User {
   String password;
   List<Pet> pets;
   List<Reporte> reportes = [];
-  List<String> zones;
+  List<Zona> zones;
   String icon = 'assets/images/user.png';
   bool notificaciones = true;
 

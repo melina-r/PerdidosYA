@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
+import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/profile.dart';
 import 'package:perdidos_ya/theme.dart';
@@ -110,7 +111,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
             child: Column(
               children: [
                 ...widget.user.zones.map((zone) => ListTile(
-                  title: Text(zone),
+                  title: Text(zonaToString(zone)),
                   trailing: IconButton(
                     icon: Icon(Icons.close),
                     onPressed: () {
