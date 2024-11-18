@@ -96,6 +96,7 @@ class RegisterPage extends StatelessWidget {
       'password': password,
       'zonas': [],
       'mascotas': [],
+      'mensajes': [],
     });
 
     Navigator.pushReplacement(

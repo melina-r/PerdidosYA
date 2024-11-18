@@ -29,7 +29,7 @@ class _MapPageState extends State<MapPage> {
 
     CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
     List<String> listaZonas = widget.user.zones.map((zona) => zonaToString(zona)).toList();
-
+    
     for (var z in listaZonas){
       QuerySnapshot snapshot = await zonasTotales.where('zona', isEqualTo: z).get();
   

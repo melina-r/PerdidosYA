@@ -1,8 +1,7 @@
-
+import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
-
 import 'objects/pet.dart';
 import 'objects/report.dart';
 
@@ -25,12 +24,12 @@ class User {
       'password': password,
       'pets': pets.map((pet) => pet.toMap()).toList(),
       'reportes': reportes.map((reporte) => reporte.toMap()).toList(),
-      'zonas': zones.map((zona) => zonaToString(zona)).toList(),
+      'zones': zones,
       'icon': icon,
       'notificaciones': notificaciones,
     };
   }
-
+  
   static User fromMap(Object? userMap) {
     Map<String, dynamic> map = userMap as Map<String, dynamic>;
     return User(

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/edit_username.dart';
 import 'package:perdidos_ya/components/edit_zones.dart';
@@ -42,7 +43,6 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         }
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             children: [

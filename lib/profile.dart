@@ -7,10 +7,10 @@ import 'package:perdidos_ya/components/username.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
-import 'package:perdidos_ya/users.dart' as users;
+import 'package:perdidos_ya/users.dart';
 
-class ProfilePage extends StatefulWidget {
-  final users.User user;
+class ProfilePage extends StatelessWidget {
+  final User user;
 
   const ProfilePage({required this.user});
 
@@ -94,4 +94,3 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
     );
   }
 }
-

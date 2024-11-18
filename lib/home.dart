@@ -1,23 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/report.dart';
 
-class HomePage extends StatelessWidget {
-  final int perdido = 0;
-  final int encontrado = 1;
-  final bool mostrarBasePerdidos = true;
-  final bool mostrarBaseEncontrados = true;
-  final String baseMostrada = "Mascotas perdidas";
-  final String queryLista = "";
-  final BuildContext context;
+
+class HomePage extends StatefulWidget {
   final users.User user;
 
+  HomePage({super.key, required this.user});
 
-  const HomePage({super.key, required this.context, required this.user});
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final int perdido = 0;
+  final int encontrado = 1;
+  bool mostrarBasePerdidos = true;
+  bool mostrarBaseEncontrados = true;
+  final String baseMostrada = "Mascotas perdidas";
+  final String queryLista = "";
 
   void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int tipoAnuncio) {
     String tablaBaseDeDatos = '';
@@ -26,7 +32,7 @@ class HomePage extends StatelessWidget {
     }
     else if(tipoAnuncio == encontrado){
       ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Agrgando a encontrados')),
+                  SnackBar(content: Text('Agregando a encontrados')),
                 );
       tablaBaseDeDatos = 'Mascotas encontradas';
     }
@@ -38,8 +44,7 @@ class HomePage extends StatelessWidget {
       ubicacion: ubicacion,
       raza: raza,
       especie: especie,
-      // timestamp: FieldValue.serverTimestamp(),
-      user: user.username
+      user: widget.user.username
       );
 
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
@@ -47,7 +52,8 @@ class HomePage extends StatelessWidget {
     _updateReportesEnZona(zona,reporte);
   }
 
-  void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
+
+ void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
     Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user);
 
     try {
@@ -74,7 +80,6 @@ class HomePage extends StatelessWidget {
     print("Error al agregar el reporte: $error");
   }
 }
-
   
 
   void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) {
@@ -228,7 +233,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
+Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
     return SizedBox(
       height: 300.0,
       width: 300.0,
@@ -258,7 +263,78 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
+void _enviarMensaje(String usuario, Mensaje mensaje) async {
+    try {
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: usuario)
+        .get();
+
+    if (userSnapshot.docs.isEmpty) {
+      print('Usuario no encontrado');
+      return;
+    }
+
+    DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+    await userDoc.reference.update({
+      'mensajes': FieldValue.arrayUnion([mensaje.toMap()]),
+    });
+    } catch (e) {
+      print('Error al enviar mensaje: $e');
+    }
+}
+
+
+void mandarMensaje(String usuario,BuildContext context){
+    TextEditingController tituloController = TextEditingController();
+    TextEditingController bodyController = TextEditingController();
+    Mensaje finalMensaje = Mensaje(
+      title: "Titulo",
+      body: "Body",
+      from: this.widget.user.username,
+      received: Timestamp.now(),
+    );
+    showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Mensaje'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                decoration: InputDecoration(hintText: 'Titulo'),
+                controller: tituloController,
+              ),
+              TextField(
+                decoration: InputDecoration(hintText: 'Descripción'),
+                controller: bodyController,
+              )
+            ]
+          ),
+        ),
+        actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                finalMensaje.title = tituloController.text;
+                finalMensaje.body =  bodyController.text;
+                _enviarMensaje(usuario, finalMensaje);
+                Navigator.pop(context);
+              },
+              child: Text('Aceptar'),
+            ),
+        ]
+      );
+    }
+  );
+}
+
+  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, String usuario) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -276,6 +352,7 @@ class HomePage extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                mandarMensaje(usuario, context);
               },
               child: const Text('Mandar Mensaje'),
             ),
@@ -285,28 +362,58 @@ class HomePage extends StatelessWidget {
     );
   }
 
- void _mostrarFiltros() {    
+void _mostrarFiltros() {
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: colorTerciario,
-          title: Center(child: Text('hola'),),
-          content:Center(child: Text('hola'),),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Mandar Mensaje'),
-            ),
-          ],
+          title: Center(child: Text('Filtrar'),),
+          content:Container(
+            height: 200,
+            child: Center(
+            child:StatefulBuilder(
+              builder: (BuildContext context, StateSetter setDialogState) {
+                      return  Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("Mostrar mascotas encontradas:"),
+                        Switch(
+                        value: mostrarBaseEncontrados,
+                        onChanged: (bool value) {
+                          setDialogState(() {
+                            this.mostrarBaseEncontrados = value;
+                          });
+                          setState(() {
+                            this.mostrarBaseEncontrados = value;
+                          });
+                        },
+                        ),
+                        Text("Mostrar mascotas perdidas:"),
+                        Switch(
+                        value: mostrarBasePerdidos,
+                        onChanged: (bool value) {
+                          setDialogState(() {
+                            this.mostrarBasePerdidos= value;
+                          });
+                          setState(() {
+                            this.mostrarBasePerdidos = value;
+                          });
+                        },
+                        ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cerrar'),
+                      ),
+                        ],
+                      );
+                    },
+                  ),
+              ),
+          ),
         );
       },
     );
@@ -314,93 +421,98 @@ class HomePage extends StatelessWidget {
 
 
   Widget listasCombinadas() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('Mascotas perdidas')
-          .orderBy('timestamp', descending: true)
-          .snapshots(),
-      builder: (context, lostSnapshot) {
-        if (!lostSnapshot.hasData) {
-          return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
-        }
-
-        return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Mascotas encontradas')
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
-          builder: (context, foundSnapshot) {
-            if (!foundSnapshot.hasData) {
+    if(this.widget.user.zones.isNotEmpty){
+      return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Mascotas perdidas')
+            .where("zona", whereIn: this.widget.user.zones)
+            .snapshots(),
+        builder: (context, lostSnapshot) {
+          return StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('Mascotas encontradas')
+                .where("zona", whereIn: this.widget.user.zones)
+                .snapshots(),
+            builder: (context, foundSnapshot) {
+            if (lostSnapshot.connectionState == ConnectionState.waiting || foundSnapshot.connectionState == ConnectionState.waiting ) {
               return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
             }
-            List<QueryDocumentSnapshot<Object?>>  lostAlerts = [];
-            List<QueryDocumentSnapshot<Object?>> foundAlerts = [];
-            if(mostrarBasePerdidos){
-              lostAlerts = lostSnapshot.data!.docs;
-            }
-            if(mostrarBaseEncontrados){
-              foundAlerts = foundSnapshot.data!.docs;
-            }
+            if ((!lostSnapshot.hasData || lostSnapshot.data!.docs.isEmpty) && (!foundSnapshot.hasData || foundSnapshot.data!.docs.isEmpty) ) {
+              return Center(child: Text('No hay anuncios disponibles.'));
+            } 
+              List<QueryDocumentSnapshot<Object?>>  lostAlerts = [];
+              List<QueryDocumentSnapshot<Object?>> foundAlerts = [];
+              if(mostrarBasePerdidos){
+                lostAlerts = lostSnapshot.data!.docs;
+              }
+              if(mostrarBaseEncontrados){
+                foundAlerts = foundSnapshot.data!.docs;
+              }
 
-            List<Widget> combinedAlerts = [];
+              List<Widget> combinedAlerts = [];
+              // Agregar mascotas perdidas
+              for (var alert in lostAlerts) {
+                final alertData = alert.data() as Map<String, dynamic>;
+                final titulo = alertData['titulo'];
+                final descripcion = alertData['descripcion'];
+                final raza = alertData['raza'];
+                final especie = alertData['especie'];
+                final zona = alertData['Zona'];
+                final ubicacion =alertData['ubicacion'];
+                final user = alertData['user'];
+                if(this.widget.user.username != user){
+                  combinedAlerts.add(
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
+                        child: ListTile(
+                          title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(titulo),
+                          onTap: (){
+                            _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user);},
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              }
 
-            // Agregar mascotas perdidas
-            for (var alert in lostAlerts) {
-              final alertData = alert.data() as Map<String, dynamic>;
-              final titulo = alertData['titulo'];
-              final descripcion = alertData['descripcion'];
-              final raza = alertData['raza'];
-              final especie = alertData['especie'];
-              final zona = alertData['Zona'];
-              final ubicacion =alertData['ubicacion'];
-              final user = alertData['user'];
+              // Agregar mascotas encontradas
+              for (var alert in foundAlerts) {
+                final alertData = alert.data() as Map<String, dynamic>;
+                final titulo = alertData['titulo'];
+                final descripcion = alertData['descripcion'];
+                final raza = alertData['raza'];
+                final especie = alertData['especie'];
+                final zona = alertData['Zona'];
+                final ubicacion =alertData['ubicacion'];
+                final user = alertData['user'];  
 
-              combinedAlerts.add(
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    child: ListTile(
-                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(titulo),
-                      onTap: (){
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
+                combinedAlerts.add(
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: ListTile(
+                        title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(titulo),
+                        onTap: (){
+                          
+                          _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user);},
+                      ),
                     ),
                   ),
-                ),
-              );
-            }
-
-            // Agregar mascotas encontradas
-            for (var alert in foundAlerts) {
-              final alertData = alert.data() as Map<String, dynamic>;
-              final titulo = alertData['titulo'];
-              final descripcion = alertData['descripcion'];
-              final raza = alertData['raza'];
-              final especie = alertData['especie'];
-              final zona = alertData['Zona'];
-              final ubicacion =alertData['ubicacion'];
-              final user = alertData['user'];  
-
-              combinedAlerts.add(
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    child: ListTile(
-                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(titulo),
-                      onTap: (){
-                        
-                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza' );},
-                    ),
-                  ),
-                ),
-              );
-            }
-            return ListView(children: combinedAlerts); // **Retorno de la lista combinada**
-          },
-        );
-      },
-    );
+                );
+              }
+              return ListView(children: combinedAlerts); // **Retorno de la lista combinada**
+            },
+          );
+        },
+      );
+    }
+    else{
+      List<Widget> combinedAlerts = [];
+      return Center(child: Text('No hay anuncios disponibles.'));
+    }
   }
 
 
