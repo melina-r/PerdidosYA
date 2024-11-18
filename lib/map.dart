@@ -21,7 +21,6 @@ class _MapPageState extends State<MapPage> {
 
   String? _selectedZone;
   final List<String> _zones = Zona.values.map((zone) => zonaToString(zone)).toList();
-  List<String> _currentZones = [];
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -29,25 +28,11 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _showReports() async{
-    CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
-    List<String> listaZonas = widget.user.zones.map((zona) => zonaToString(zona)).toList();
-    
+    List<Zona> listaZonas = widget.user.zones;
     for (var z in listaZonas){
-      QuerySnapshot snapshot = await zonasTotales.where('zona', isEqualTo: z).get();
-  
-      if (snapshot.docs.isNotEmpty) {
-        DocumentReference zonaRef = snapshot.docs.first.reference;
-        DocumentSnapshot zonaDoc = await zonaRef.get();
-        List<dynamic> reportes = zonaDoc['reportes'];
-        
-        for (var reporte in reportes){
-          String titulo = reporte['titulo'];
-          String ubicacion = reporte['ubicacion'] + ', Buenos Aires, Argentina';
-         
-          _addMarkerFromAddress(titulo,ubicacion);
-        }
-      }    
+      _addMarkersForSelectedZone(zonaToString(z));
     }
+  
   }
 
 
@@ -74,7 +59,7 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  void _addMarkersForSelectedZone() async{
+  void _addMarkersForSelectedZone(_selectedZone) async{
     if (_selectedZone == null ) return;
 
     CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
@@ -149,7 +134,7 @@ class _MapPageState extends State<MapPage> {
                   SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () {
-                      _addMarkersForSelectedZone();
+                      _addMarkersForSelectedZone(_selectedZone);
                     },
                     child: Text('Confirmar'),
                   ),

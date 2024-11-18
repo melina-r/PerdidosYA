@@ -106,6 +106,7 @@ class LoginPage extends StatelessWidget {
 
       var reportesTotales = perdidos + encontrados;
 
+
       users.User user = users.User(
         username: userDoc['username'],
         email: userDoc['email'],

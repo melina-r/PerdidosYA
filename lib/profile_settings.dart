@@ -6,6 +6,9 @@ import 'package:perdidos_ya/components/edit_pets.dart';
 import 'package:perdidos_ya/components/logout_alert.dart';
 import 'package:perdidos_ya/components/custom_appbar.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
+import 'package:perdidos_ya/objects/barrios.dart';
+import 'package:perdidos_ya/objects/pet.dart';
+import 'package:perdidos_ya/profile.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 
