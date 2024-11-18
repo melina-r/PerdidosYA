@@ -40,6 +40,7 @@ class AddZoneButton extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     if (newZone == null) return;
+                    if (user.zones.contains(newZone!)) return;
                     user.zones.add(newZone!);
                     user.updateDatabase();
                     refreshList();
@@ -76,31 +77,33 @@ class _ListZoneDialogState extends State<ListZoneDialog> {
     return AlertDialog(
       title: Text("Modificar zonas preferidas"),
       content: SingleChildScrollView(
-        child: Column(
-          children: [
-            ...widget.user.zones.map(
-              (zone) => ListTile(
-                title: Text(zonaToString(zone)),
-                trailing: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    widget.user.zones.remove(zone);
-                    widget.user.updateDatabase();
-                    widget.refreshSettings();
-                    widget.refreshProfile();
-                    setState(() {});
-                  },
-                ),
-              )
-            ),
-            SizedBox(height: 20),
-            AddZoneButton(
-              user: widget.user,
-              refreshList: () => setState(() {}),
-              refreshSettings: widget.refreshSettings,
-              refreshProfile: widget.refreshProfile,
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ...widget.user.zones.map(
+                (zone) => ListTile(
+                  title: Text(zonaToString(zone)),
+                  trailing: IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      widget.user.zones.remove(zone);
+                      widget.user.updateDatabase();
+                      widget.refreshSettings();
+                      widget.refreshProfile();
+                      setState(() {});
+                    },
+                  ),
+                )
+              ),
+              SizedBox(height: 20),
+              AddZoneButton(
+                user: widget.user,
+                refreshList: () => setState(() {}),
+                refreshSettings: widget.refreshSettings,
+                refreshProfile: widget.refreshProfile,
+              ),
+            ],
+          ),
         ),
       ),
       actions: [

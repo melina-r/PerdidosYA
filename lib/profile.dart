@@ -63,6 +63,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Username(username: widget.user.username),
+                  SizedBox(height: 20),
                   Column(
                     children: [
                       ToggleList(sections: [

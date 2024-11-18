@@ -48,7 +48,8 @@ class _HomePageState extends State<HomePage> {
       );
 
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
-
+    widget.user.reports.add(reporte);
+    widget.user.updateDatabase();
     _updateReportesEnZona(zona,reporte);
   }
 
