@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
     _updateReportesEnZona(zona,reporte);
   }
 
+
  void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
     Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user);
 
@@ -79,8 +80,6 @@ class _HomePageState extends State<HomePage> {
     print("Error al agregar el reporte: $error");
   }
 }
-
-
   
 
   void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) {

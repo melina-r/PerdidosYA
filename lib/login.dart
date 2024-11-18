@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/mensaje.dart';
+import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/objects/report.dart';
-import 'objects/pet.dart';
 import 'registro.dart'; 
 import 'inicio.dart'; 
 import 'users.dart' as users;
@@ -18,49 +18,53 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inicio de Sesion'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('Inicio de Sesion'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: usernameController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                ),
               ),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Contraseña',
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Contraseña',
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _loginUser(
-                  usernameController.text,
-                  passwordController.text,
-                  context,
-                );
-              },
-              child: const Text('Iniciar Sesion'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterPage()),
-                );
-              },
-              child: const Text('Registrarse'),
-            ),
-          ],
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _loginUser(
+                    usernameController.text,
+                    passwordController.text,
+                    context,
+                  );
+                },
+                child: const Text('Iniciar Sesion'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterPage()),
+                  );
+                },
+                child: const Text('Registrarse'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -110,6 +114,7 @@ class LoginPage extends StatelessWidget {
         pets: List<Pet>.from(userDoc['mascotas'].map((mascota) => Pet.fromMap(mascota))),
         reportes: List<Reporte>.from(reportesTotales.map((reporte) => Reporte.fromMap(reporte.data()))),
         zones: List<Zona>.from(userDoc['zonas'].map((zona) => stringToZona(zona))),
+        icon: userDoc['icon'],
       );
 
       Navigator.pushReplacement(
