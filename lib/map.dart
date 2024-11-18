@@ -92,33 +92,6 @@ class _MapPageState extends State<MapPage> {
         _addMarkerFromAddress(titulo,ubicacion);
       }
     }    
-
-
-
-    // CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
-    // QuerySnapshot snapshot = await zonasTotales.where('zona', isEqualTo: _selectedZone).get();
-
-    // if (snapshot.docs.isNotEmpty) {
-    //   DocumentReference zonaRef = snapshot.docs.first.reference;
-    //   DocumentSnapshot zonaDoc = await zonaRef.get();
-    //   List<dynamic> reportes = zonaDoc['reportes'];
-
-    //   Set<Marker> newMarkers = reportes.map((reporte) {
-    //     LatLng position = LatLng(reporte['ubicacion']['lat'], reporte['ubicacion']['lng']);
-    //     return Marker(
-    //       markerId: MarkerId(reporte['titulo']),
-    //       position: position,
-    //       infoWindow: InfoWindow(
-    //         title: reporte['titulo'],
-    //         snippet: reporte['descripcion'],
-    //       ),
-    //     );
-    //   }).toSet();
-
-    //   setState(() {
-    //     _markers.addAll(newMarkers);
-    //   });
-    // }
   }
 
   @override
