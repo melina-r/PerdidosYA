@@ -48,9 +48,11 @@ class _HomePageState extends State<HomePage> {
       );
 
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
-
+    widget.user.reports.add(reporte);
+    widget.user.updateDatabase();
     _updateReportesEnZona(zona,reporte);
   }
+
 
  void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
     Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user);
@@ -79,8 +81,6 @@ class _HomePageState extends State<HomePage> {
     print("Error al agregar el reporte: $error");
   }
 }
-
-
   
 
   void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) {
@@ -426,13 +426,13 @@ void _mostrarFiltros() {
       return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Mascotas perdidas')
-            .where("zona", whereIn: this.widget.user.zones)
+            .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
             .snapshots(),
         builder: (context, lostSnapshot) {
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('Mascotas encontradas')
-                .where("zona", whereIn: this.widget.user.zones)
+                .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
                 .snapshots(),
             builder: (context, foundSnapshot) {
             if (lostSnapshot.connectionState == ConnectionState.waiting || foundSnapshot.connectionState == ConnectionState.waiting ) {
