@@ -40,7 +40,8 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         icon: Icon(Icons.logout, color: colorPrincipalUno, size: 30),
         onPressed: () {
           LogoutAlert.show(context);
-        }
+        },
+        leading: true,
       ),
       body: Column(
         children: [

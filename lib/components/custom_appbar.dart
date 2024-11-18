@@ -7,13 +7,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget icon;
   final Function()? onPressed;
   final User user;
+  final bool leading;
 
-  const CustomAppBar({super.key, required this.user, required this.title, required this.icon, this.onPressed});
+  const CustomAppBar({super.key, required this.user, required this.title, required this.icon, this.onPressed, this.leading = false});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      automaticallyImplyLeading: false,
+      automaticallyImplyLeading: leading,
       title: Padding(
         padding: const EdgeInsets.all(8.0),
         child:

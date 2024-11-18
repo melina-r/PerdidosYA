@@ -425,13 +425,13 @@ void _mostrarFiltros() {
       return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Mascotas perdidas')
-            .where("zona", whereIn: this.widget.user.zones)
+            .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
             .snapshots(),
         builder: (context, lostSnapshot) {
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('Mascotas encontradas')
-                .where("zona", whereIn: this.widget.user.zones)
+                .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
                 .snapshots(),
             builder: (context, foundSnapshot) {
             if (lostSnapshot.connectionState == ConnectionState.waiting || foundSnapshot.connectionState == ConnectionState.waiting ) {

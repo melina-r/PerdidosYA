@@ -41,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: colorTerciario,
       appBar: CustomAppBar(
         user: widget.user,
         title: "Perfil",
