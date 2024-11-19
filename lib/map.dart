@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:perdidos_ya/objects/barrios.dart';
 import 'theme.dart';
 import 'package:perdidos_ya/users.dart';
 
@@ -18,6 +19,8 @@ class _MapPageState extends State<MapPage> {
   final Set<Marker> _markers = {};
   final LatLng _center = const LatLng(-34.602469417156684, -58.390846554589395);
 
+  String? _selectedZone;
+  final List<String> _zones = Zona.values.map((zone) => zonaToString(zone)).toList();
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -25,16 +28,13 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _showReports() async{
-    // for zonas del usuario agarro los reportes de la zona y lo siguiente
-    CollectionReference reports = FirebaseFirestore.instance.collection('Mascotas encontradas');
-    QuerySnapshot querySnapshot = await reports.get();
-
-    for (var r in querySnapshot.docs) {
-      String ubicacion = r['ubicacion'] + ', Buenos Aires, Argentina';
-      String titulo = r['titulo'];
-      _addMarkerFromAddress(titulo,ubicacion);
+    List<Zona> listaZonas = widget.user.zones;
+    for (var z in listaZonas){
+      _addMarkersForSelectedZone(zonaToString(z));
     }
+  
   }
+
 
   Future<void> _addMarkerFromAddress(String titulo,String ubicacion) async {
     try {
@@ -59,7 +59,25 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  void _addMarkersForSelectedZone(_selectedZone) async{
+    if (_selectedZone == null ) return;
+
+    CollectionReference zonasTotales = FirebaseFirestore.instance.collection('Zonas');
+    QuerySnapshot snapshot = await zonasTotales.where('zona', isEqualTo: _selectedZone).get();
   
+    if (snapshot.docs.isNotEmpty) {
+      DocumentReference zonaRef = snapshot.docs.first.reference;
+      DocumentSnapshot zonaDoc = await zonaRef.get();
+      List<dynamic> reportes = zonaDoc['reportes'];
+        
+      for (var reporte in reportes){
+        String titulo = reporte['titulo'];
+        String ubicacion = reporte['ubicacion'] + ', Buenos Aires, Argentina';
+         
+        _addMarkerFromAddress(titulo,ubicacion);
+      }
+    }    
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +89,58 @@ class _MapPageState extends State<MapPage> {
       body: Stack(
         children: [
           GoogleMap(
-            onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
               target: _center,
               zoom: 11.0,
             ),
             markers: _markers,
+            onMapCreated: _onMapCreated,
+          ),
+          Positioned(
+            top: 20,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  DropdownButton<String>(
+                    hint: Text('Mostrar otra Zona'),
+                    value: _selectedZone,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedZone = newValue;
+                      });
+                    },
+                    items: _zones.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      _addMarkersForSelectedZone(_selectedZone);
+                    },
+                    child: Text('Confirmar'),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

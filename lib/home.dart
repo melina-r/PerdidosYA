@@ -49,35 +49,44 @@ class _HomePageState extends State<HomePage> {
       ubicacion: ubicacion,
       raza: raza,
       especie: especie,
-      timestamp: FieldValue.serverTimestamp(),
       user: widget.user.username,
       imageUrl: imageUrl!,
       );
 
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
-
-    // _updateReportesEnZona(zona,reporte);
+    widget.user.reports.add(reporte);
+    widget.user.updateDatabase();
+    _updateReportesEnZona(zona,reporte);
   }
 
-//   void _updateReportesEnZona(String zonaBuscada, Reporte nuevoReporte) async {
-//   CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
+ void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
+    Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user);
 
-//   QuerySnapshot snapshot = await zonasRef.get();
-//   for (var doc in snapshot.docs) {
-//     if (doc['zona'] == zonaBuscada) {
-//       DocumentReference zonaRef = zonasRef.doc(doc.id);
-//       zonaRef.update({
-//         'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
-//       }).then((_) {
-//         print("Reporte agregado al array con éxito");
-//       }).catchError((error) {
-//         print("Error al agregar el reporte: $error");
-//       });
-//       break;
-//     }
-//   }
-// }
+    try {
+      // Obtener la referencia a la colección 'Zonas'
+      CollectionReference zonasRef = FirebaseFirestore.instance.collection('Zonas');
 
+      // Buscar el documento que contiene la zona buscada
+      QuerySnapshot snapshot = await zonasRef.where('zona', isEqualTo: zonaBuscada).get();
+
+      if (snapshot.docs.isNotEmpty) {
+        // Obtener el primer documento que coincide con la búsqueda
+        DocumentReference zonaRef = snapshot.docs.first.reference;
+
+        // Actualizar el campo 'reportes' en el documento encontrado
+        await zonaRef.update({
+          'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
+        });
+
+        print("Reporte agregado al array con éxito");
+      } else {
+        print("No se encontró la zona: $zonaBuscada");
+      }
+    } catch (error) {
+    print("Error al agregar el reporte: $error");
+  }
+}
+  
 Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) async {
   String? imageUrl;
     final response = await http.get(Uri.parse(urlAPI));
@@ -456,13 +465,13 @@ void _mostrarFiltros() {
       return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Mascotas perdidas')
-            .where("zona", whereIn: this.widget.user.zones)
+            .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
             .snapshots(),
         builder: (context, lostSnapshot) {
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('Mascotas encontradas')
-                .where("zona", whereIn: this.widget.user.zones)
+                .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
                 .snapshots(),
             builder: (context, foundSnapshot) {
             if (lostSnapshot.connectionState == ConnectionState.waiting || foundSnapshot.connectionState == ConnectionState.waiting ) {

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Reporte {
   String titulo;
   String zona;
@@ -7,7 +5,6 @@ class Reporte {
   String raza;
   String especie;
   String descripcion;
-  dynamic timestamp;
   String user;
   String imageUrl;
 
@@ -21,7 +18,6 @@ class Reporte {
       raza: reporte['raza'] ?? '',
       especie: reporte['especie'] ?? '',
       descripcion: reporte['descripcion'] ?? '',
-      timestamp: reporte['timestamp'],
       user: reporte['user'],
       imageUrl: reporte['imageUrl']
     );
@@ -35,7 +31,6 @@ class Reporte {
       'raza': raza,
       'especie': especie,
       'descripcion': descripcion,
-      'timestamp': timestamp,
       'user': user,
       'imageUrl': imageUrl,
     };

@@ -60,56 +60,56 @@ Widget MensajeShowAlert(String body, String from, Timestamp recibido) {
   }
 
   Widget listarMensajes(){
-    List<Widget> mensajes = [];
-      return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-        .collection('users')
-        .where('email', isEqualTo: this.widget.user.email)
-        .snapshots(),
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: widget.user.email)
+              .snapshots(),
       builder: (context, messageSnapshot) {
         if (messageSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
-            }
-        if (!messageSnapshot.hasData || messageSnapshot.data!.docs.isEmpty) {
-              return Center(child: Text('No hay mensajes disponibles.'));
-            }
-      final userDoc = messageSnapshot.data!.docs.first;
-      List<dynamic> messagesAlerts = userDoc['mensajes'] ?? [];
-      List<Widget> mensajes = messagesAlerts.map((mensaje) {
-        final titulo = mensaje['title'] ?? 'Sin título';
-        final body = mensaje['body'] ?? 'Sin contenido';
-        final from = mensaje['from'] ?? 'Remitente desconocido';
-        dynamic recibido = mensaje['received'];
-
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            elevation: 2.0,
-            child: ListTile(
-              title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(from),
-              onTap: () {
-                _mostrarMensaje(titulo, body, from, recibido);
-              },
-            ),
-          ),
-        );
-      }).toList();
-
-      // Retornar la lista de mensajes como un ListView
-      return ListView.builder(
-        itemCount: mensajes.length,
-        itemBuilder: (context, index) => mensajes[index],
-      );
+          return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
         }
+        if (!messageSnapshot.hasData || messageSnapshot.data!.docs.isEmpty) {
+          return Center(child: Text('No hay mensajes disponibles.'));
+        }
+        final userDoc = messageSnapshot.data!.docs.first;
+        List<dynamic> messagesAlerts = userDoc['messages'] ?? [];
+        List<Widget> mensajes = messagesAlerts.map((mensaje) {
+          final titulo = mensaje['title'] ?? 'Sin título';
+          final body = mensaje['body'] ?? 'Sin contenido';
+          final from = mensaje['from'] ?? 'Remitente desconocido';
+          dynamic recibido = mensaje['received'];
+
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              elevation: 2.0,
+              child: ListTile(
+                title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(from),
+                onTap: () {
+                  _mostrarMensaje(titulo, body, from, recibido);
+                },
+              ),
+            ),
+          );
+        }).toList();
+
+        // Retornar la lista de mensajes como un ListView
+        return ListView.builder(
+          itemCount: mensajes.length,
+          itemBuilder: (context, index) => mensajes[index],
+        );
+      }
     );
   }
-    @override
-Widget build(BuildContext context) {
-     return Scaffold(
-          appBar: AppBar(title: Text("Mis Mensajes")),
-          body: listarMensajes(),
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Mis Mensajes")),
+      body: listarMensajes(),
     );
   }
 }
