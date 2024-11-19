@@ -25,17 +25,20 @@ class _HomePageState extends State<HomePage> {
   final int encontrado = 1;
   bool mostrarBasePerdidos = true;
   bool mostrarBaseEncontrados = true;
+  bool mostrarAnunciosGatos = true;
+  bool mostrarAnunciosPerros = true;
+  bool mostrarZonasPreferidas = true;
   final String baseMostrada = "Mascotas perdidas";
   final String queryLista = "";
   final String ImageCatAPI = "https://api.thecatapi.com/v1/images/search";
   final String ImageDogAPI = "https://dog.ceo/api/breeds/image/random";
 
-  void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int tipoAnuncio, String? imageUrl) {
+  void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int base, String? imageUrl) {
     String tablaBaseDeDatos = '';
-    if(tipoAnuncio == perdido){
+    if(base == perdido){
         tablaBaseDeDatos = 'Mascotas perdidas';
     }
-    else if(tipoAnuncio == encontrado){
+    else if(base == encontrado){
       ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Agregando a encontrados')),
                 );
@@ -60,7 +63,7 @@ class _HomePageState extends State<HomePage> {
   }
 
  void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
-    Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user);
+    Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user, imageUrl: reporte.imageUrl);
 
     try {
       // Obtener la referencia a la colección 'Zonas'
@@ -75,7 +78,7 @@ class _HomePageState extends State<HomePage> {
 
         // Actualizar el campo 'reportes' en el documento encontrado
         await zonaRef.update({
-          'reportes': FieldValue.arrayUnion([nuevoReporte.toMap()])
+          'reports': FieldValue.arrayUnion([nuevoReporte.toMap()])
         });
 
         print("Reporte agregado al array con éxito");
@@ -105,7 +108,7 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
     }
 }
 
-  void _mostrarDialogoAgregarAnuncio(int tipoAnuncio) async {
+  void _mostrarDialogoAgregarAnuncio(int base) async {
     String titulo = '';
     String descripcion = '';
     String raza = '';
@@ -134,13 +137,13 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                     children: [
                      Center(
                     child: imageUrl == null
-                        ? CircularProgressIndicator() // Si imageUrl es null, mostrar el indicador de carga
+                        ?  Icon(Icons.help_center_outlined)// Si imageUrl es null, mostrar el indicador de carga
                         : CachedNetworkImage(
                             imageUrl: imageUrl!,
                             placeholder: (context, url) => CircularProgressIndicator(),
                             errorWidget: (context, url, error) => Icon(Icons.error),
                           ),
-                  ),
+                      ),
                       TextField(
                         decoration: InputDecoration(labelText: 'Título'),
                         onChanged: (value) {
@@ -211,6 +214,7 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                   raza = value;
                 },
               ),
+              SizedBox(height: 20),
                Container(
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.symmetric(horizontal: 15.0),
@@ -262,7 +266,7 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
             ),
             TextButton(
               onPressed: (){
-                _agregarAnuncio(titulo, descripcion, zona, ubicacion, especieSeleccionada, raza, tipoAnuncio, imageUrl);
+                _agregarAnuncio(titulo, descripcion, zona, ubicacion, especieSeleccionada, raza, base, imageUrl);
                 Navigator.of(context).pop();
               },
               child: const Text('Agregar'),
@@ -273,12 +277,21 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
     );
 }
 
-Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza) {
+Widget anuncioShowAlert(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, dynamic imageURL) {
     return SizedBox(
       height: 300.0,
       width: 300.0,
       child: ListView(
         children: [
+          Center(
+            child: imageURL == null
+                ?  Icon(Icons.help_center_outlined)
+                : CachedNetworkImage(
+                    imageUrl: imageURL!,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+              ),
           ListTile(
             title: Text('Zona:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
             subtitle: Text(zona),
@@ -318,7 +331,7 @@ void _enviarMensaje(String usuario, Mensaje mensaje) async {
     DocumentSnapshot userDoc = userSnapshot.docs.first;
 
     await userDoc.reference.update({
-      'mensajes': FieldValue.arrayUnion([mensaje.toMap()]),
+      'messages': FieldValue.arrayUnion([mensaje.toMap()]),
     });
     } catch (e) {
       print('Error al enviar mensaje: $e');
@@ -374,14 +387,14 @@ void mandarMensaje(String usuario,BuildContext context){
   );
 }
 
-  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, String usuario) {
+  void _mostrarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, String usuario, dynamic imageURL) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: colorTerciario,
           title: Center(child: Text(titulo),),
-          content:anuncioShowAlert(titulo, descripcion, zona, ubicacion, especie, raza),
+          content:anuncioShowAlert(titulo, descripcion, zona, ubicacion, especie, raza, imageURL),
           actions: [
             TextButton(
               onPressed: () {
@@ -411,7 +424,7 @@ void _mostrarFiltros() {
           backgroundColor: colorTerciario,
           title: Center(child: Text('Filtrar'),),
           content:Container(
-            height: 200,
+            height: 500,
             child: Center(
             child:StatefulBuilder(
               builder: (BuildContext context, StateSetter setDialogState) {
@@ -420,27 +433,63 @@ void _mostrarFiltros() {
                       children: [
                         Text("Mostrar mascotas encontradas:"),
                         Switch(
-                        value: mostrarBaseEncontrados,
-                        onChanged: (bool value) {
-                          setDialogState(() {
-                            this.mostrarBaseEncontrados = value;
-                          });
-                          setState(() {
-                            this.mostrarBaseEncontrados = value;
-                          });
-                        },
+                          value: mostrarBaseEncontrados,
+                          onChanged: (bool value) {
+                            setDialogState(() {
+                              this.mostrarBaseEncontrados = value;
+                            });
+                            setState(() {
+                              this.mostrarBaseEncontrados = value;
+                            });
+                          },
                         ),
                         Text("Mostrar mascotas perdidas:"),
                         Switch(
-                        value: mostrarBasePerdidos,
-                        onChanged: (bool value) {
-                          setDialogState(() {
-                            this.mostrarBasePerdidos= value;
-                          });
-                          setState(() {
-                            this.mostrarBasePerdidos = value;
-                          });
-                        },
+                          value: mostrarBasePerdidos,
+                          onChanged: (bool value) {
+                            setDialogState(() {
+                              this.mostrarBasePerdidos= value;
+                            });
+                            setState(() {
+                              this.mostrarBasePerdidos = value;
+                            });
+                          },
+                        ),
+                        Text("Mostrar solo zonas preferidas:"),
+                        Switch(
+                          value: mostrarZonasPreferidas,
+                          onChanged: (bool value) {
+                            setDialogState(() {
+                              this.mostrarZonasPreferidas= value;
+                            });
+                            setState(() {
+                              this.mostrarZonasPreferidas = value;
+                            });
+                          },
+                        ),
+                        Text("Mostrar anuncios de perros:"),
+                        Switch(
+                          value: mostrarAnunciosPerros,
+                          onChanged: (bool value) {
+                            setDialogState(() {
+                              this.mostrarAnunciosPerros= value;
+                            });
+                            setState(() {
+                              this.mostrarAnunciosPerros = value;
+                            });
+                          },
+                        ),
+                        Text("Mostrar anuncios de gatos:"),
+                        Switch(
+                          value: mostrarAnunciosGatos,
+                          onChanged: (bool value) {
+                            setDialogState(() {
+                              this.mostrarAnunciosGatos= value;
+                            });
+                            setState(() {
+                              this.mostrarAnunciosGatos = value;
+                            });
+                          },
                         ),
                       TextButton(
                         onPressed: () {
@@ -459,101 +508,113 @@ void _mostrarFiltros() {
     );
   }
 
-
-  Widget listasCombinadas() {
-    if(this.widget.user.zones.isNotEmpty){
-      return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('Mascotas perdidas')
-            .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
-            .snapshots(),
-        builder: (context, lostSnapshot) {
-          return StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('Mascotas encontradas')
-                .where("zona", whereIn: widget.user.zones.map((zona) => zonaToString(zona)).toList())
-                .snapshots(),
-            builder: (context, foundSnapshot) {
-            if (lostSnapshot.connectionState == ConnectionState.waiting || foundSnapshot.connectionState == ConnectionState.waiting ) {
-              return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
-            }
-            if ((!lostSnapshot.hasData || lostSnapshot.data!.docs.isEmpty) && (!foundSnapshot.hasData || foundSnapshot.data!.docs.isEmpty) ) {
-              return Center(child: Text('No hay anuncios disponibles.'));
-            } 
-              List<QueryDocumentSnapshot<Object?>>  lostAlerts = [];
-              List<QueryDocumentSnapshot<Object?>> foundAlerts = [];
-              if(mostrarBasePerdidos){
-                lostAlerts = lostSnapshot.data!.docs;
-              }
-              if(mostrarBaseEncontrados){
-                foundAlerts = foundSnapshot.data!.docs;
-              }
-
-              List<Widget> combinedAlerts = [];
-              // Agregar mascotas perdidas
-              for (var alert in lostAlerts) {
-                final alertData = alert.data() as Map<String, dynamic>;
-                final titulo = alertData['titulo'];
-                final descripcion = alertData['descripcion'];
-                final raza = alertData['raza'];
-                final especie = alertData['especie'];
-                final zona = alertData['Zona'];
-                final ubicacion =alertData['ubicacion'];
-                final user = alertData['user'];
-                if(this.widget.user.username != user){
-                  combinedAlerts.add(
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        child: ListTile(
-                          title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(titulo),
-                          onTap: (){
-                            _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user);},
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              }
-
-              // Agregar mascotas encontradas
-              for (var alert in foundAlerts) {
-                final alertData = alert.data() as Map<String, dynamic>;
-                final titulo = alertData['titulo'];
-                final descripcion = alertData['descripcion'];
-                final raza = alertData['raza'];
-                final especie = alertData['especie'];
-                final zona = alertData['Zona'];
-                final ubicacion =alertData['ubicacion'];
-                final user = alertData['user'];  
-
-                combinedAlerts.add(
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      child: ListTile(
-                        title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(titulo),
-                        onTap: (){
-                          
-                          _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user);},
-                      ),
-                    ),
-                  ),
-                );
-              }
-              return ListView(children: combinedAlerts); // **Retorno de la lista combinada**
-            },
-          );
-        },
-      );
+Stream<QuerySnapshot<Object?>> obtenerMascotasDinamicas(int baseDatos){
+  String tablaBaseDeDatos = '';
+    if(baseDatos == perdido){
+        tablaBaseDeDatos = 'Mascotas perdidas';
     }
-    else{
-      List<Widget> combinedAlerts = [];
-      return Center(child: Text('No hay anuncios disponibles.'));
+    else if(baseDatos == encontrado){
+      tablaBaseDeDatos = 'Mascotas encontradas';
+    }
+  Query consulta= FirebaseFirestore.instance.collection(tablaBaseDeDatos);
+  if(this.mostrarAnunciosGatos && !this.mostrarAnunciosPerros){
+    consulta = consulta.where("especie", isEqualTo: "Gato");
+  }
+  else if(this.mostrarAnunciosPerros && !this.mostrarAnunciosGatos){
+    consulta = consulta.where("especie", isEqualTo: "Perro");
+  }
+  if(this.widget.user.zones.isNotEmpty){
+    if(this.mostrarZonasPreferidas){
+      consulta = consulta.where("zona", whereIn: this.widget.user.zones.map((zona) => zonaToString(zona)).toList());
     }
   }
+  return consulta.snapshots();
+}
+
+Widget listasCombinadas() {
+  return StreamBuilder<QuerySnapshot>(
+    stream: obtenerMascotasDinamicas(this.perdido),
+    builder: (context, lostSnapshot) {
+      return StreamBuilder<QuerySnapshot>(
+        stream: obtenerMascotasDinamicas(this.encontrado),
+        builder: (context, foundSnapshot) {
+        if (lostSnapshot.connectionState == ConnectionState.waiting || foundSnapshot.connectionState == ConnectionState.waiting ) {
+          return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
+        }
+        if ((!lostSnapshot.hasData || lostSnapshot.data!.docs.isEmpty) && (!foundSnapshot.hasData || foundSnapshot.data!.docs.isEmpty) ) {
+          return Center(child: Text('No hay anuncios disponibles.'));
+        } 
+          List<QueryDocumentSnapshot<Object?>>  lostAlerts = [];
+          List<QueryDocumentSnapshot<Object?>> foundAlerts = [];
+          if(mostrarBasePerdidos){
+            lostAlerts = lostSnapshot.data!.docs;
+          }
+          if(mostrarBaseEncontrados){
+            foundAlerts = foundSnapshot.data!.docs;
+          }
+
+          List<Widget> combinedAlerts = [];
+          // Agregar mascotas perdidas
+          for (var alert in lostAlerts) {
+            final alertData = alert.data() as Map<String, dynamic>;
+            final titulo = alertData['titulo'] ?? ''; // Si es null, asigna una cadena vacía
+            final descripcion = alertData['descripcion'] ?? '';
+            final raza = alertData['raza'] ?? '';
+            final especie = alertData['especie'] ?? '';
+            final zona = alertData['zona'] ?? '';
+            final ubicacion = alertData['ubicacion'] ?? '';
+            final user = alertData['user'] ?? '';
+            final imageURL = alertData['imageUrl'] ?? '';
+            if(this.widget.user.username != user){
+              combinedAlerts.add(
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: ListTile(
+                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(titulo),
+                      onTap: (){
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user, imageURL);},
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            }
+          // Agregar mascotas encontradas
+          for (var alert in foundAlerts) {
+            final alertData = alert.data() as Map<String, dynamic>;
+            final titulo = alertData['titulo'];
+            final descripcion = alertData['descripcion'];
+            final raza = alertData['raza'];
+            final especie = alertData['especie'];
+            final zona = alertData['Zona'];
+            final ubicacion =alertData['ubicacion'];
+            final user = alertData['user'];  
+            final imageURL = alertData['imageURL'];
+            if(this.widget.user.username != user){
+              combinedAlerts.add(
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: ListTile(
+                      title: Text(user, style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(titulo),
+                      onTap: (){
+                        _mostrarAnuncio('$titulo', '$descripcion', '$zona', '$ubicacion', '$especie', '$raza', user, imageURL);},
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+          return ListView(children: combinedAlerts); // **Retorno de la lista combinada**
+        },
+      );
+    },
+  );
+}
 
 
 

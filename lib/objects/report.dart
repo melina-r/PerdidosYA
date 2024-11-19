@@ -8,7 +8,7 @@ class Reporte {
   String user;
   String imageUrl;
 
-  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.timestamp, required this.user, required this.imageUrl});
+  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.user, required this.imageUrl});
 
   factory Reporte.fromMap(Map<String, dynamic> reporte) {
     return Reporte(
