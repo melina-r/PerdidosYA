@@ -6,8 +6,9 @@ class Reporte {
   String especie;
   String descripcion;
   String user;
+  String imageUrl;
 
-  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.user});
+  Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.user, required this.imageUrl});
 
   factory Reporte.fromMap(Map<String, dynamic> reporte) {
     return Reporte(
@@ -18,6 +19,7 @@ class Reporte {
       especie: reporte['especie'] ?? '',
       descripcion: reporte['descripcion'] ?? '',
       user: reporte['user'],
+      imageUrl: reporte['imageUrl']
     );
   }
 
@@ -30,6 +32,7 @@ class Reporte {
       'especie': especie,
       'descripcion': descripcion,
       'user': user,
+      'imageUrl': imageUrl,
     };
   }
 }

@@ -1,4 +1,7 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -59,6 +62,58 @@ Widget MensajeShowAlert(String body, String from, Timestamp recibido) {
     );
   }
 
+void _eliminarMensaje(Mensaje mensaje) async {
+    try {
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: widget.user.username)
+        .get();
+
+    if (userSnapshot.docs.isEmpty) {
+      print('Usuario no encontrado');
+      return;
+    }
+
+    DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+    await userDoc.reference.update({
+      'messages': FieldValue.arrayRemove([mensaje.toMap()]),
+    });
+    } catch (e) {
+      print('Error al eliminar el mensaje: $e');
+    }
+}
+
+void eliminarMensaje(String title, String body, String from, dynamic received){
+  Mensaje finalMensaje = Mensaje(
+      title: title,
+      body: body,
+      from: from,
+      received: received
+    );
+    showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("¿Eliminar mensaje de forma definitiva?"),
+        actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                _eliminarMensaje(finalMensaje);
+                Navigator.pop(context);
+              },
+              child: Text('Eliminar'),
+            ),
+        ]
+      );
+    }
+  ); 
+}
+
   Widget listarMensajes(){
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -88,6 +143,12 @@ Widget MensajeShowAlert(String body, String from, Timestamp recibido) {
                 title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(from),
+                trailing: IconButton(
+                icon: Icon(Icons.delete),
+                  onPressed: () {
+                      eliminarMensaje(titulo, body, from, recibido);
+                  }
+                ),
                 onTap: () {
                   _mostrarMensaje(titulo, body, from, recibido);
                 },
