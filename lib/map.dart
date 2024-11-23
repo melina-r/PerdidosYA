@@ -29,7 +29,6 @@ class _MapPageState extends State<MapPage> {
 
   void _showReports() async{
     List<Zona> listaZonas = widget.user.zones;
-
     for (var z in listaZonas){
       _addMarkersForSelectedZone(zonaToString(z));
     }
