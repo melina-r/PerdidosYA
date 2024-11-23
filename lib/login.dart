@@ -107,9 +107,9 @@ class LoginPage extends StatelessWidget {
         username: userDoc['username'],
         email: userDoc['email'],
         password: userDoc['password'],
-        pets: List<Pet>.from(userDoc['mascotas'].map((mascota) => Pet.fromMap(mascota))),
+        pets: List<Pet>.from(userDoc['pets'].map((mascota) => Pet.fromMap(mascota))),
         reportes: List<Reporte>.from(reportesTotales.map((reporte) => Reporte.fromMap(reporte.data()))),
-        zones: List<Zona>.from(userDoc['zonas'].map((zona) => stringToZona(zona))),
+        zones: List<Zona>.from(userDoc['zones'].map((zona) => stringToZona(zona))),
       );
 
       Navigator.pushReplacement(

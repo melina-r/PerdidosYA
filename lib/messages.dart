@@ -74,7 +74,7 @@ Widget MensajeShowAlert(String body, String from, Timestamp recibido) {
               return Center(child: Text('No hay mensajes disponibles.'));
             }
       final userDoc = messageSnapshot.data!.docs.first;
-      List<dynamic> messagesAlerts = userDoc['mensajes'] ?? [];
+      List<dynamic> messagesAlerts = userDoc['messages'] ?? [];
       List<Widget> mensajes = messagesAlerts.map((mensaje) {
         final titulo = mensaje['title'] ?? 'Sin título';
         final body = mensaje['body'] ?? 'Sin contenido';
