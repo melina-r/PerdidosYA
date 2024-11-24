@@ -6,7 +6,7 @@ class Reporte {
   String especie;
   String descripcion;
   String user;
-  String imageUrl;
+  String? imageUrl;
 
   Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.user, required this.imageUrl});
 
