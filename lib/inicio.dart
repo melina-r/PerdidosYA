@@ -15,9 +15,29 @@ class Inicio extends StatefulWidget {
   _InicioState createState() => _InicioState();
 }
 
-class _InicioState extends State<Inicio> {
+class _InicioState extends State<Inicio>  with WidgetsBindingObserver {
   int _selectedIndex = 0;
   List<Widget> paginas = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      () async => await widget.user.loadFromDatabase();
+    }
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -30,7 +50,9 @@ class _InicioState extends State<Inicio> {
       HomePage(user: widget.user),
       MapPage(user: widget.user),
       MessagesPage(user: widget.user), //esta luego se reemplaza por la pagina de mensajes
-      ProfilePage(user: widget.user), 
+      ProfilePage(user: widget.user, refreshPages: [() => setState(() {
+        widget.user.loadFromDatabase();
+      })]), 
     ];
     return Scaffold(
       backgroundColor: colorTerciario,    //Cambiar color  //Cambiar color
