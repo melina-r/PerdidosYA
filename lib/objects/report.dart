@@ -19,7 +19,7 @@ class Reporte {
       especie: reporte['especie'] ?? '',
       descripcion: reporte['descripcion'] ?? '',
       user: reporte['user'],
-      imageUrl: reporte['imageUrl']
+      imageUrl: reporte['imageUrl'] ?? ''
     );
   }
 

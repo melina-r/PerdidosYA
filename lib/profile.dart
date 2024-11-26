@@ -11,8 +11,9 @@ import 'package:perdidos_ya/users.dart';
 
 class ProfilePage extends StatefulWidget {
   final User user;
+  final List<VoidCallback> refreshPages;
 
-  const ProfilePage({required this.user});
+  const ProfilePage({super.key, required this.user, required this.refreshPages});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -38,6 +39,11 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
     }
   }
 
+  void _refresh() {
+    widget.user.loadFromDatabase();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ProfileSettings(user: widget.user, refreshProfile: () => setState(() {}))),
+            MaterialPageRoute(builder: (context) => ProfileSettings(user: widget.user, refreshPages: widget.refreshPages + [_refresh]),),
           );
         },
       ),

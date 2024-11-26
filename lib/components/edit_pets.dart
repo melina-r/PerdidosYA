@@ -4,10 +4,9 @@ import 'package:perdidos_ya/users.dart';
 
 class ListPetsDialog extends StatefulWidget {
   final User user;
-  final Function() refreshSettings;
-  final Function() refreshProfile;
+  final List<VoidCallback> refreshPages;
 
-  const ListPetsDialog({required this.user, required this.refreshSettings, required this.refreshProfile});
+  const ListPetsDialog({required this.user, required this.refreshPages});
 
   @override
   State<ListPetsDialog> createState() => _ListPetsDialogState();
@@ -37,10 +36,8 @@ class _ListPetsDialogState extends State<ListPetsDialog> {
                               context: context,
                               builder: (context) => EditPetDialog(
                                 pet: pet, 
-                                user: widget.user, 
-                                refreshList: () => setState(() {}), 
-                                refreshProfile: widget.refreshProfile,
-                                refreshSettings: widget.refreshSettings
+                                user: widget.user,  
+                                refreshPages: widget.refreshPages + [() => setState(() {})],
                               ),
                             );
                           },
@@ -50,8 +47,9 @@ class _ListPetsDialogState extends State<ListPetsDialog> {
                           onPressed: () {
                             widget.user.pets.remove(pet);
                             widget.user.updateDatabase();
-                            widget.refreshSettings();
-                            widget.refreshProfile();
+                            for (var element in widget.refreshPages) {
+                              element();
+                            }
                             setState(() {});
                           },
                         ),
@@ -69,9 +67,7 @@ class _ListPetsDialogState extends State<ListPetsDialog> {
                   context: context,
                   builder: (context) => EditPetDialog(
                     user: widget.user, 
-                    refreshList: () => setState(() {}),
-                    refreshSettings: widget.refreshSettings,
-                    refreshProfile: widget.refreshProfile,
+                    refreshPages: widget.refreshPages + [() => setState(() {})],
                   ),
                 );
               },
@@ -93,11 +89,9 @@ class _ListPetsDialogState extends State<ListPetsDialog> {
 class EditPetDialog extends StatefulWidget {
   final Pet? pet;
   final User user;
-  final Function() refreshProfile;
-  final Function() refreshSettings;
-  final Function() refreshList;
+  final List<VoidCallback> refreshPages;
 
-  const EditPetDialog({super.key, this.pet, required this.user, required this.refreshSettings, required this.refreshList, required this.refreshProfile});
+  const EditPetDialog({super.key, this.pet, required this.user, required this.refreshPages});
 
   @override
   State<EditPetDialog> createState() => _EditPetDialog();
@@ -224,9 +218,9 @@ class _EditPetDialog extends State<EditPetDialog> {
                 widget.user.pets[widget.user.pets.indexOf(widget.pet!)] = petInfo;
               }
               widget.user.updateDatabase();
-              widget.refreshList();
-              widget.refreshSettings();
-              widget.refreshProfile();
+              for (var element in widget.refreshPages) {
+                element();
+              }
               Navigator.pop(context);
             },
             child: Text('Aceptar'),
