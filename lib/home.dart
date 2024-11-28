@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   final String ImageCatAPI = "https://api.thecatapi.com/v1/images/search";
   final String ImageDogAPI = "https://dog.ceo/api/breeds/image/random";
 
-  void _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int base, String? imageUrl) {
+  Future<void> _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int base, String? imageUrl) async {
     String tablaBaseDeDatos = '';
     if(base == perdido){
         tablaBaseDeDatos = 'Mascotas perdidas';
@@ -45,6 +45,8 @@ class _HomePageState extends State<HomePage> {
       tablaBaseDeDatos = 'Mascotas encontradas';
     }
 
+    String id = await Reporte.generateId(tablaBaseDeDatos);
+
     Reporte reporte = Reporte(
       titulo: titulo, 
       descripcion: descripcion,
@@ -54,6 +56,8 @@ class _HomePageState extends State<HomePage> {
       especie: especie,
       user: widget.user.username,
       imageUrl: imageUrl!,
+      id: id,
+      type: tablaBaseDeDatos,
       );
 
     FirebaseFirestore.instance.collection(tablaBaseDeDatos).add(reporte.toMap());
@@ -63,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   }
 
  void _updateReportesEnZona(String zonaBuscada, Reporte reporte) async {
-    Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user, imageUrl: reporte.imageUrl);
+    Reporte nuevoReporte = Reporte(titulo: reporte.titulo, descripcion: reporte.descripcion, zona: reporte.zona, ubicacion: reporte.ubicacion, raza: reporte.raza, especie: reporte.especie, user: reporte.user, imageUrl: reporte.imageUrl, type: reporte.type, id: reporte.id);
 
     try {
       // Obtener la referencia a la colección 'Zonas'

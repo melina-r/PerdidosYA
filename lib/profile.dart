@@ -88,7 +88,13 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                         ToggleData(
                           icon: Icons.assistant_photo,
                           title: "Mis reportes",
-                          content: [...widget.user.reports.map((report) => ReportDetails(reportInfo: report))],
+                          content: [...widget.user.reports.map((report) => ReportDetails(reportInfo: report, deleteFunction: () {
+                            widget.user.deleteReport(report);
+                            for (var element in widget.refreshPages) {
+                              element();
+                            }
+                            _refresh();
+                          },))],
                         )
                       ])
                     ],

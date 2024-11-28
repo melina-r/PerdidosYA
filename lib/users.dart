@@ -13,8 +13,9 @@ class User {
   List<Zona> zones;
   String icon;
   bool notifications = true;
+  String? notificationToken;
 
-  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required this.reports, required this.icon, required this.notifications});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required this.reports, required this.icon, required this.notifications, required this.notificationToken});
 
   Map<String, dynamic> toMap() {
     return {
@@ -22,10 +23,11 @@ class User {
       'email': email,
       'password': password,
       'pets': pets.map((pet) => pet.toMap()).toList(),
-      'reportes': reports.map((report) => report.toMap()).toList(),
+      'reports': reports.map((report) => report.toMap()).toList(),
       'zones': zones.map((zona) => zonaToString(zona)).toList(),
       'icon': icon,
       'notifications': notifications,
+      'notification_token': notificationToken,
     };
   }
 
@@ -40,10 +42,11 @@ class User {
       email: map['email'],
       password: map['password'],
       pets: isNotEmpty(map, 'pets') ? List<Pet>.from(map['pets'].map((pet) => Pet.fromMap(pet))) : [],
-      reports: isNotEmpty(map, 'reports') ? List<Reporte>.from(map['reports'].map((reporte) => Reporte.fromMap(reporte))) : [],
+      reports: isNotEmpty(map, 'reports') ? List<Reporte>.from(map['reports'].map((reporte) => Reporte.fromMap(reporte.toMap()))) : [],
       zones: isNotEmpty(map, 'zones') ? List<Zona>.from(map['zones'].map((zona) => stringToZona(zona))) : [],
       icon: map.containsKey("icon")? map['icon'] : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
       notifications: map['notifications'],
+      notificationToken: map.containsKey('notification_token') ? map['notification_token'] : null,
     );
   }
 
@@ -59,12 +62,22 @@ class User {
       zones = user.zones;
       icon = user.icon;
       notifications = user.notifications;
+      notificationToken = user.notificationToken;
     });
   }
 
   Future<void> updateDatabase() async {
     final userId = (await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).get()).docs.first.id;
     FirebaseFirestore.instance.collection('users').doc(userId).update(toMap());
+  }
+
+  void deleteReport(Reporte report) {
+    reports.remove(report);
+    print(report.toMap());
+    FirebaseFirestore.instance.collection(report.type).where('id', isEqualTo: report.id).get().then((value) {
+      value.docs.first.reference.delete();
+    });
+    updateDatabase();
   }
 
 }
