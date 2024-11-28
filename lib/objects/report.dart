@@ -9,7 +9,7 @@ class Reporte {
   String especie;
   String descripcion;
   String user;
-  String imageUrl;
+  String? imageUrl;
   String type;
   String id;
 
