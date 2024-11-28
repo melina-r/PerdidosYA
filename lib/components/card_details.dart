@@ -7,12 +7,13 @@ import '../objects/report.dart';
 class CardDetails extends ListTile {
   final String cardTitle;
   final List<Widget> contentList;
+  final VoidCallback? longPress;
 
-  const CardDetails({super.key, required this.cardTitle, required this.contentList});
+  const CardDetails({super.key, required this.cardTitle, required this.contentList, this.longPress});
   
   @override
   ListTile build(BuildContext context) {
-    return ListTile(title: Text(cardTitle, style: TextStyle(fontSize: 20),), contentPadding: EdgeInsets.only(left: 40), leading: Icon(Icons.arrow_outward), onTap: () {_showDetailCard(context);},);
+    return ListTile(title: Text(cardTitle, style: TextStyle(fontSize: 20),), contentPadding: EdgeInsets.only(left: 40), leading: Icon(Icons.arrow_outward), onTap: () {_showDetailCard(context);}, onLongPress: longPress != null ? () {_showDialog(context, longPress);} : () {},);
   }
 
   void _showDetailCard(BuildContext context) {
@@ -44,6 +45,33 @@ class CardDetails extends ListTile {
       },
     );
   }
+
+  void _showDialog(BuildContext context, VoidCallback? longPress) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: colorTerciario,
+          title: const Text("¿Estás seguro de que deseas eliminar este reporte?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                longPress!();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Eliminar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+          ],
+        );
+      }
+    );
+  }
 }
 
 class PetDetails extends CardDetails {
@@ -68,14 +96,19 @@ class PetDetails extends CardDetails {
 
 class ReportDetails extends CardDetails {
   final Reporte reportInfo;
-  ReportDetails({required this.reportInfo})
+  final VoidCallback deleteFunction;
+
+  ReportDetails({required this.reportInfo, required this.deleteFunction})
       : super(
           cardTitle: reportInfo.titulo, 
           contentList: _buildContentList(reportInfo),
+          longPress: deleteFunction,
         );
 
   static List<Widget> _buildContentList(Reporte reportInfo) {
     return [
+      Image.network(reportInfo.imageUrl, height: 200, fit: BoxFit.cover),
+      const SizedBox(height: 20),
       Text("Especie: ${reportInfo.especie}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       Text("Raza: ${reportInfo.raza}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       Text("Zona: ${reportInfo.zona}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
