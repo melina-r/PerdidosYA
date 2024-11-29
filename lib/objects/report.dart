@@ -19,7 +19,7 @@ class Reporte {
   factory Reporte.fromMap(Map<String, dynamic> reporte) {
     return Reporte(
       titulo: reporte['titulo'] ?? '',
-      zona: reporte['Zona'] ?? '',
+      zona: reporte['zona'] ?? '',
       ubicacion: reporte['ubicacion'] ?? '',
       raza: reporte['raza'] ?? '',
       especie: reporte['especie'] ?? '',
