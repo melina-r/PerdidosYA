@@ -68,7 +68,7 @@ class _MapPageState extends State<MapPage> {
     if (snapshot.docs.isNotEmpty) {
       DocumentReference zonaRef = snapshot.docs.first.reference;
       DocumentSnapshot zonaDoc = await zonaRef.get();
-      List<dynamic> reportes = zonaDoc['reportes'];
+      List<dynamic> reportes = zonaDoc['reports'];
         
       for (var reporte in reportes){
         String titulo = reporte['titulo'];
