@@ -570,8 +570,6 @@ class ReportInfoCard extends StatelessWidget {
   }
 }
 
-
-
 class PetAlertWidget extends StatelessWidget {
   final String username;
   final Reporte reporte;
@@ -644,6 +642,7 @@ class ReportsFilterButton extends StatelessWidget {
       ],
     );
   }
+
 }
 
 class Filters extends StatelessWidget {
