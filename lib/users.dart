@@ -77,6 +77,11 @@ class User {
     FirebaseFirestore.instance.collection(report.type).where('id', isEqualTo: report.id).get().then((value) {
       value.docs.first.reference.delete();
     });
+    FirebaseFirestore.instance.collection('Zonas').where('zona', isEqualTo: report.zona).get().then((value) {
+      value.docs.first.reference.update({
+        'reports': FieldValue.arrayRemove([report.toMap()])
+      });
+    });
     updateDatabase();
   }
 
