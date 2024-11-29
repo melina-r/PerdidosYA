@@ -91,11 +91,11 @@ class LoginPage extends StatelessWidget {
 
       var perdidosSnapshot = await FirebaseFirestore.instance
           .collection('Mascotas perdidas')
-          .where('user', isEqualTo: userDoc['username'])
+          .where('email', isEqualTo: userDoc['email'])
           .get();
       var encontradosSnapshot = await FirebaseFirestore.instance
           .collection('Mascotas encontradas')
-          .where('user', isEqualTo: userDoc['username'])
+          .where('email', isEqualTo: userDoc['email'])
           .get();
 
       var perdidos = perdidosSnapshot.docs;
