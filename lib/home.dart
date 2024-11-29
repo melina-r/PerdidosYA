@@ -30,15 +30,10 @@ class _HomePageState extends State<HomePage> {
     'Anuncios de perros': true,
     'Zonas preferidas': true,
   };
-  // bool mostrarBasePerdidos = true;
-  // bool mostrarBaseEncontrados = true;
-  // bool mostrarAnunciosGatos = true;
-  // bool mostrarAnunciosPerros = true;
-  // bool mostrarZonasPreferidas = true;
   final String baseMostrada = "Mascotas perdidas";
   final String queryLista = "";
-  final String ImageCatAPI = "https://api.thecatapi.com/v1/images/search";
-  final String ImageDogAPI = "https://dog.ceo/api/breeds/image/random";
+  final String imageCatAPI = "https://api.thecatapi.com/v1/images/search";
+  final String imageDogAPI = "https://dog.ceo/api/breeds/image/random";
 
   Future<void> _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int base, String? imageUrl) async {
     String tablaBaseDeDatos = '';
@@ -128,7 +123,6 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
     Zona? zonaElegida;
     String urlAPI = 'vacio';
     String? imageUrl;
-    
 
     await showDialog(
         context: context,
@@ -143,7 +137,7 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                       children: [
                       Center(
                       child: imageUrl == null
-                          ?  Icon(Icons.help_center_outlined)// Si imageUrl es null, mostrar el indicador de carga
+                          ?  Icon(Icons.help_center_outlined) // Si imageUrl es null, mostrar el indicador de carga
                           : CachedNetworkImage(
                               imageUrl: imageUrl!,
                               placeholder: (context, url) => CircularProgressIndicator(),
@@ -174,7 +168,7 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                                 setDialogState(() {
                                   botonGatoPresionado = true;
                                   botonPerroPresionado = false;
-                                  urlAPI = ImageCatAPI;
+                                  urlAPI = imageCatAPI;
                                   especieSeleccionada = especies[0];
                                 });
                                 imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
@@ -196,7 +190,7 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                                 setDialogState(() {
                                   botonGatoPresionado = false;
                                   botonPerroPresionado = true;
-                                  urlAPI = ImageDogAPI;
+                                  urlAPI = imageDogAPI;
                                   especieSeleccionada = especies[1];
                                 });
                                 imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
@@ -287,24 +281,7 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
     return SizedBox(
       height: 300.0,
       width: 300.0,
-      child: ListView(
-        children: [
-          Center(
-            child: reporte.imageUrl == null
-                ?  Icon(Icons.help_center_outlined)
-                : CachedNetworkImage(
-                    imageUrl: reporte.imageUrl!,
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                  ),
-              ),
-          DetailTile(title: 'Zona', info: reporte.zona),
-          DetailTile(title: 'Especie', info: reporte.especie),
-          DetailTile(title: 'Raza', info: reporte.raza),
-          DetailTile(title: 'Descripción', info: reporte.descripcion),
-          DetailTile(title: 'Ubicacion', info: reporte.ubicacion),
-        ],
-      )
+      child: ReportInfoCard(reporte: reporte),
     );
   }
 
@@ -468,23 +445,10 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
 
             List<Widget> combinedAlerts = [];
             // Agregar mascotas perdidas
-            for (var alert in lostAlerts) {
-              final report = Reporte.fromMap(alert.data() as Map<String, dynamic>);
-              if (widget.user.email != report.email){
-                combinedAlerts.add(
-                  PetAlertWidget(username: report.user, reporte: report, onTap: () => _mostrarAnuncio(report))
-                );
-              }
-            }
+            _createPetAlertWidget(combinedAlerts, lostAlerts);
+
             // Agregar mascotas encontradas
-            for (var alert in foundAlerts) {
-              final report = Reporte.fromMap(alert.data() as Map<String, dynamic>);
-              if (widget.user.email != report.email){
-                combinedAlerts.add(
-                  PetAlertWidget(username: report.user, reporte: report, onTap: () => _mostrarAnuncio(report))
-                );
-              }
-            }
+            _createPetAlertWidget(combinedAlerts, foundAlerts);
 
             return ListView(children: combinedAlerts); // **Retorno de la lista combinada**
           },
@@ -493,7 +457,16 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
     );
   }
 
-
+  void _createPetAlertWidget(List<Widget> combinedAlerts, List<QueryDocumentSnapshot<Object?>> alerts) {
+    for (var alert in alerts) {
+      final report = Reporte.fromMap(alert.data() as Map<String, dynamic>);
+      if (widget.user.email != report.email){
+        combinedAlerts.add(
+          PetAlertWidget(username: report.user, reporte: report, onTap: () => _mostrarAnuncio(report))
+        );
+      }
+    }
+  }
 
   Expanded listasFiltradas(){
     return Expanded(child: listasCombinadas());
@@ -568,6 +541,35 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
       );
   }
 }
+
+class ReportInfoCard extends StatelessWidget {
+  final Reporte reporte;
+
+  const ReportInfoCard({required this.reporte});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        Center(
+          child: reporte.imageUrl == null
+              ?  Icon(Icons.help_center_outlined)
+              : CachedNetworkImage(
+                  imageUrl: reporte.imageUrl!,
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
+            ),
+        DetailTile(title: 'Zona', info: reporte.zona),
+        DetailTile(title: 'Especie', info: reporte.especie),
+        DetailTile(title: 'Raza', info: reporte.raza),
+        DetailTile(title: 'Descripción', info: reporte.descripcion),
+        DetailTile(title: 'Ubicacion', info: reporte.ubicacion),
+      ],
+    );
+  }
+}
+
 
 
 class PetAlertWidget extends StatelessWidget {
