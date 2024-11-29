@@ -17,9 +17,10 @@ class Reporte {
   Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.user, required this.email, required this.imageUrl, required this.type, required this.id});
 
   factory Reporte.fromMap(Map<String, dynamic> reporte) {
-    return Reporte(
+    print(reporte);
+    final report = Reporte(
       titulo: reporte['titulo'] ?? '',
-      zona: reporte['Zona'] ?? '',
+      zona: reporte['zona'] ?? '',
       ubicacion: reporte['ubicacion'] ?? '',
       raza: reporte['raza'] ?? '',
       especie: reporte['especie'] ?? '',
@@ -30,6 +31,8 @@ class Reporte {
       type: reporte['type'] ?? 'Mascotas perdidas',
       id: reporte['id'] ?? generateId(reporte['type']),
     );
+    print(report.zona);
+    return report;
   }
 
   Map<String, dynamic> toMap() {

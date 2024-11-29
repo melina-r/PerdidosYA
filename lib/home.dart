@@ -298,25 +298,11 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                     errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
               ),
-          ListTile(
-            title: Text('Zona:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-            subtitle: Text(reporte.zona),
-          ),
-          ListTile(
-            title: Text('Especie:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-            subtitle: Text(reporte.especie),
-          ),
-          ListTile(
-            title: Text('Raza:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-            subtitle: Text(reporte.raza),
-          ),
-          ListTile(
-            title: Text('Descripción:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-            subtitle: Text(reporte.descripcion),
-          ),ListTile(
-            title: Text('Ubicacion:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-            subtitle: Text(reporte.ubicacion),
-          ),
+          DetailTile(title: 'Zona', info: reporte.zona),
+          DetailTile(title: 'Especie', info: reporte.especie),
+          DetailTile(title: 'Raza', info: reporte.raza),
+          DetailTile(title: 'Descripción', info: reporte.descripcion),
+          DetailTile(title: 'Ubicacion', info: reporte.ubicacion),
         ],
       )
     );
@@ -425,45 +411,11 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: colorTerciario,
-          title: Center(child: Text('Filtrar'),),
-          content:Container(
-            height: 400,
-            width: 300,
-            child: Center(
-            child:StatefulBuilder(
-              builder: (BuildContext context, StateSetter setDialogState) {
-                      return  Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: 
-                        List<Widget>.from(mostrarBases.keys.map((key) {
-                          return ReportsFilterButton(
-                            text: key,
-                            value: mostrarBases[key]!,
-                            onChanged: (bool value) {
-                              setDialogState(() {
-                                mostrarBases[key] = value;
-                                setState(() {
-                                  mostrarBases[key] = value;
-                                });
-                              });
-                            },
-                          );
-                        }).toList()) + [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Cerrar'),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-              ),
-          ),
-        );
+        return Filters(mostrarBases: mostrarBases, refresh: () {
+          setState(() {
+            mostrarBases = mostrarBases;
+          });
+        });
       },
     );
   }
@@ -688,6 +640,70 @@ class ReportsFilterButton extends StatelessWidget {
           onChanged: onChanged,
         ),
       ],
+    );
+  }
+}
+
+class Filters extends StatelessWidget {
+  final Map<String, bool> mostrarBases;
+  final VoidCallback refresh;
+
+  const Filters({super.key, required this.mostrarBases, required this.refresh});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+          backgroundColor: colorTerciario,
+          title: Center(child: Text('Filtrar'),),
+          content: Container(
+            height: 400,
+            width: 300,
+            child: Center(
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setDialogState) {
+                      return  Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: 
+                        List<Widget>.from(mostrarBases.keys.map((key) {
+                          return ReportsFilterButton(
+                            text: key,
+                            value: mostrarBases[key]!,
+                            onChanged: (bool value) {
+                              setDialogState(() {
+                                mostrarBases[key] = value;
+                                refresh();
+                              });
+                            },
+                          );
+                        }).toList()) + [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cerrar'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+              ),
+          ),
+        );
+  }
+}
+
+class DetailTile extends StatelessWidget {
+  final String title;
+  final String info;
+
+  const DetailTile({required this.title, required this.info});
+
+  @override
+  Widget build(BuildContext context) {
+    print('title: $title, info: $info');
+    return ListTile(
+      title: Text('$title:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+      subtitle: Text(info),
     );
   }
 }
