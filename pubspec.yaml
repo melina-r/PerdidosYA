@@ -24,6 +24,7 @@ dependencies:
   path_provider: ^2.0.0
   firebase_messaging: ^14.7.10
   flutter_local_notifications: ^18.0.1
+  dart_jsonwebtoken: ^2.14.1
 
 dev_dependencies:
   flutter_test:
@@ -32,5 +33,5 @@ dev_dependencies:
 
 flutter:
   assets:
-    - lib/assets/images/
+    - lib/assets/service_account.json
   uses-material-design: true
