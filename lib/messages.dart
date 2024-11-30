@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:perdidos_ya/theme.dart';
