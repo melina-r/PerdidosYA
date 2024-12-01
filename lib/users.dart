@@ -13,9 +13,8 @@ class User {
   List<Zona> zones;
   String icon;
   bool notifications = true;
-  String? notificationToken;
 
-  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required this.reports, required this.icon, required this.notifications, required this.notificationToken});
+  User({required this.username, required this.email, required this.password, required this.pets, required this.zones, required this.reports, required this.icon, required this.notifications});
 
   Map<String, dynamic> toMap() {
     return {
@@ -27,7 +26,6 @@ class User {
       'zones': zones.map((zona) => zonaToString(zona)).toList(),
       'icon': icon,
       'notifications': notifications,
-      'notification_token': notificationToken,
     };
   }
 
@@ -46,7 +44,6 @@ class User {
       zones: isNotEmpty(map, 'zones') ? List<Zona>.from(map['zones'].map((zona) => stringToZona(zona))) : [],
       icon: map.containsKey("icon")? map['icon'] : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
       notifications: map['notifications'],
-      notificationToken: map.containsKey('notification_token') ? map['notification_token'] : null,
     );
   }
 
@@ -62,7 +59,6 @@ class User {
       zones = user.zones;
       icon = user.icon;
       notifications = user.notifications;
-      notificationToken = user.notificationToken;
     });
   }
 
@@ -73,7 +69,6 @@ class User {
 
   void deleteReport(Reporte report) {
     reports.remove(report);
-    print(report.toMap());
     FirebaseFirestore.instance.collection(report.type).where('id', isEqualTo: report.id).get().then((value) {
       value.docs.first.reference.delete();
     });
