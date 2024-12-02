@@ -11,9 +11,9 @@ import 'package:perdidos_ya/users.dart' as users;
 
 class ProfileSettings extends StatefulWidget {
   final users.User user;
-  final Function() refreshProfile;
+  final List<VoidCallback> refreshPages;
 
-  const ProfileSettings({super.key, required this.user, required this.refreshProfile});
+  const ProfileSettings({super.key, required this.user, required this.refreshPages});
 
   @override
   _ProfileSettingsState createState() => _ProfileSettingsState();
@@ -62,7 +62,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         showDialog(
                           context: context,
                           builder: (context) {
-                            return EditUsername(user: widget.user, refreshSettings: _refresh, refreshProfile: widget.refreshProfile);
+                            return EditUsername(user: widget.user, refreshPages: widget.refreshPages + [_refresh]);
                           }
                         );
                       }
@@ -92,7 +92,9 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         onChanged: (bool value) {
                             widget.user.notifications = value;
                             widget.user.updateDatabase();
-                            widget.refreshProfile();
+                            for (var element in widget.refreshPages) {
+                              element();
+                            }
                             setState(() {});
                         },
                       ),
@@ -112,7 +114,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     showDialog(
       context: context,
       builder: (context) {
-        return ListZoneDialog(user: widget.user, refreshSettings: _refresh, refreshProfile: widget.refreshProfile);
+        return ListZoneDialog(user: widget.user, refreshPages: widget.refreshPages + [_refresh]);
       },
     );
   }
@@ -121,7 +123,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     showDialog(
       context: context,
       builder: (context) {
-        return ListPetsDialog(user: widget.user, refreshSettings: _refresh, refreshProfile: widget.refreshProfile);
+        return ListPetsDialog(user: widget.user, refreshPages: widget.refreshPages + [_refresh]);
       }
     );
   }    
