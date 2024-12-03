@@ -12,6 +12,7 @@ class Pet {
   Especie especie;
   dynamic raza;
   String? description;
+  String? imageUrl;
 
   Pet({
     required this.age,
@@ -20,7 +21,8 @@ class Pet {
     required this.color,
     required this.raza,
     required this.especie,
-    this.description
+    this.description,
+    this.imageUrl,
   });
 
    // Método de fábrica para crear Pet desde el diccionario
@@ -33,6 +35,7 @@ class Pet {
       raza: razaFromString(mascota['raza'], especieFromInt(mascota['especie'] ?? 0)),
       especie: especieFromInt(mascota['especie'] ?? 0),
       description: mascota['description'] ?? '',
+      imageUrl: mascota['imageUrl'] ?? 'https://st2.depositphotos.com/1052079/7333/v/450/depositphotos_73330751-stock-illustration-silhouettes-of-pets-cat-dog.jpg',
     );
   }
 
@@ -76,6 +79,7 @@ class Pet {
       'raza': razaToString(),
       'especie': especieToInt(especie),
       'description': description,
+      'imageUrl': imageUrl,
     };
   }
 

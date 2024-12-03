@@ -5,6 +5,7 @@ import 'package:perdidos_ya/components/profile_pic.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
 import 'package:perdidos_ya/components/username.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
+import 'package:perdidos_ya/objects/report.dart';
 import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart';
@@ -41,6 +42,16 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
 
   void _refresh() {
     widget.user.loadFromDatabase();
+    setState(() {});
+  }
+
+  void _deleteReport(Reporte report) {
+    widget.user.deleteReport(report);
+    widget.user.updateDatabase();
+    final refreshFunctions = widget.refreshPages + [_refresh];
+    refreshFunctions.forEach((element) {
+      element();
+    });
     setState(() {});
   }
 
@@ -90,10 +101,9 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                           title: "Mis reportes",
                           content: [...widget.user.reports.map((report) => ReportDetails(reportInfo: report, deleteFunction: () {
                             widget.user.deleteReport(report);
-                            for (var element in widget.refreshPages) {
+                            for (var element in widget.refreshPages + [_refresh]) {
                               element();
                             }
-                            _refresh();
                           },))],
                         )
                       ])

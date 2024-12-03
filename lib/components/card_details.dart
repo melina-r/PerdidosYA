@@ -84,6 +84,7 @@ class PetDetails extends CardDetails {
 
   static List<Widget> _buildContentList(Pet petInfo) {
     return [
+      Image.network(petInfo.imageUrl!, height: 200, fit: BoxFit.contain),
       Text("Edad: ${petInfo.ageString}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
       Text("Tamaño: ${petInfo.sizeString}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), 
       Text("Color: ${petInfo.color}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
@@ -107,7 +108,7 @@ class ReportDetails extends CardDetails {
 
   static List<Widget> _buildContentList(Reporte reportInfo) {
     return [
-      Image.network(reportInfo.imageUrl ?? 'https://i.pinimg.com/736x/98/de/d2/98ded2b043224eae8f3f5991d2a5b099.jpg', height: 200, fit: BoxFit.cover),
+      Image.network(reportInfo.imageUrl ?? 'https://i.pinimg.com/736x/98/de/d2/98ded2b043224eae8f3f5991d2a5b099.jpg', height: 200, fit: BoxFit.contain),
       const SizedBox(height: 20),
       Text("Especie: ${reportInfo.especie}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       Text("Raza: ${reportInfo.raza}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:perdidos_ya/cloudinary.dart';
 import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/users.dart';
 
@@ -113,6 +114,9 @@ class _EditPetDialog extends State<EditPetDialog> {
     if (widget.pet != null) {
       petInfo = widget.pet!;
       title = "Modificar mascota";
+      nameController.text = petInfo.name;
+      colorController.text = petInfo.color;
+      descriptionController.text = petInfo.description!;
     } else {
       petInfo = Pet(
         name: "Nombre",
@@ -134,6 +138,23 @@ class _EditPetDialog extends State<EditPetDialog> {
         content: SingleChildScrollView(
           child: Column(
             children: [
+              ListTile(
+                title: Text(widget.pet == null ? "Agregar foto" : "Cambiar foto"),
+                leading: Icon(Icons.add_a_photo),
+                onTap: () {
+                  pickAndUploadImage().then((value) {
+                    if (value != null) {
+                      petInfo.imageUrl = value;
+                      setState(() {
+                        widget.user.updateDatabase();
+                        widget.refreshPages.forEach((element) {
+                          element();
+                        });
+                      });
+                    }
+                  });
+                }
+              ),
               TextField(
                 decoration: InputDecoration(hintText: petInfo.name),
                 controller: nameController,
@@ -213,14 +234,25 @@ class _EditPetDialog extends State<EditPetDialog> {
               petInfo.description = descriptionController.text;
 
               if (widget.pet == null) {
-                widget.user.pets.add(petInfo);
+                try {
+                  widget.user.pets.add(petInfo);
+                } catch (e) {
+                  print("Error al agregar mascota: $e");
+                }
               } else {
-                widget.user.pets[widget.user.pets.indexOf(widget.pet!)] = petInfo;
+                try {
+                  widget.user.pets[widget.user.pets.indexOf(widget.pet!)] = petInfo;
+                } catch (e) {
+                  print("Error al modificar mascota: $e");
+                }
               }
+
               widget.user.updateDatabase();
-              for (var element in widget.refreshPages) {
+
+              widget.refreshPages.forEach((element) {
                 element();
-              }
+              });
+
               Navigator.pop(context);
             },
             child: Text('Aceptar'),
