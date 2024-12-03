@@ -32,8 +32,6 @@ class _HomePageState extends State<HomePage> {
   };
   final String baseMostrada = "Mascotas perdidas";
   final String queryLista = "";
-  final String imageCatAPI = "https://api.thecatapi.com/v1/images/search";
-  final String imageDogAPI = "https://dog.ceo/api/breeds/image/random";
 
   Future<void> _agregarAnuncio(String titulo, String descripcion, String zona, String ubicacion, String especie, String raza, int base, String? imageUrl) async {
     String tablaBaseDeDatos = '';
@@ -87,27 +85,9 @@ class _HomePageState extends State<HomePage> {
         print("No se encontró la zona: $zonaBuscada");
       }
     } catch (error) {
-    print("Error al agregar el reporte: $error");
+      print("Error al agregar el reporte: $error");
+    }
   }
-}
-  
-// Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) async {
-//   String? imageUrl;
-//     final response = await http.get(Uri.parse(urlAPI));
-//     if (response.statusCode == 200) {
-//       dynamic data = json.decode(response.body);
-//       if(especieElegida == 'Gato'){
-//         print(data);
-//         imageUrl =  data.isNotEmpty ? data[0]['url'] : null;
-//       }else{
-//         print(data);
-//         imageUrl =  data['message'];
-//       }
-//       return imageUrl;
-//     }else {
-//       throw Exception('Failed to load image');
-//     }
-//   }
 
   void _mostrarDialogoAgregarAnuncio(int base) async {
     String titulo = '';
@@ -119,11 +99,9 @@ class _HomePageState extends State<HomePage> {
     final List<String> especies = ['Gato','Perro'];
     bool botonGatoPresionado = false;
     bool botonPerroPresionado = false;
-    final zonas = Zona.values;
+    const zonas = Zona.values;
     Zona? zonaElegida;
-    // String urlAPI = 'vacio';
     String? imageUrl;
-
 
     await showDialog(
         context: context,
@@ -607,36 +585,6 @@ class PetAlertWidget extends StatelessWidget {
 
 }
 
-// class RandomImage {
-//   static Future<String?> obtenerImagenAleatoria(String especieElegida) async {
-//     const String imageCatAPI = "https://api.thecatapi.com/v1/images/search";
-//     const String imageDogAPI = "https://dog.ceo/api/breeds/image/random";
-    
-//     String? imageUrl;
-
-//     final response = await http.get(Uri.parse(especieElegida == 'Gato' ? imageCatAPI : imageDogAPI));
-
-//     if (response.statusCode == 200) {
-//       dynamic data = json.decode(response.body);
-
-//       if (especieElegida == 'Gato'){
-//         print(data);
-//         imageUrl =  data.isNotEmpty ? data[0]['url'] : null;
-//       }else{
-//         print(data);
-//         imageUrl =  data['message'];
-//       }
-
-//       return imageUrl;
-      
-//     }else {
-//       throw Exception('Failed to load image');
-//     }
-//   }
-
-
-// }
-
 class ReportsFilterButton extends StatelessWidget {
   final String text;
   final bool value;
@@ -670,7 +618,7 @@ class Filters extends StatelessWidget {
     return AlertDialog(
           backgroundColor: colorTerciario,
           title: Center(child: Text('Filtrar'),),
-          content: Container(
+          content: SizedBox(
             height: 400,
             width: 300,
             child: Center(

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:perdidos_ya/constants.dart';
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'objects/pet.dart';
 import 'objects/report.dart';
@@ -42,7 +43,7 @@ class User {
       pets: isNotEmpty(map, 'pets') ? List<Pet>.from(map['pets'].map((pet) => Pet.fromMap(pet))) : [],
       reports: isNotEmpty(map, 'reports') ? List<Reporte>.from(map['reports'].map((reporte) => Reporte.fromMap(reporte.toMap()))) : [],
       zones: isNotEmpty(map, 'zones') ? List<Zona>.from(map['zones'].map((zona) => stringToZona(zona))) : [],
-      icon: map.containsKey("icon")? map['icon'] : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png',
+      icon: map.containsKey("icon")? map['icon'] : defaultUserImage,
       notifications: map['notifications'],
     );
   }

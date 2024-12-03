@@ -1,3 +1,5 @@
+import 'package:perdidos_ya/constants.dart';
+
 enum SizePet { chico, mediano, grande }
 enum AgePet { cachorro, adulto, anciano }
 enum RazaPerro { mestizo, bulldog, labrador, pastorAleman, pastorBelga, boxer, chihuahua, dalmata, doberman, goldenRetriever, huskySiberiano, pug, rottweiler, sanBernardo, schnauzer, shihTzu, yorkshireTerrier }
@@ -34,8 +36,8 @@ class Pet {
       color: mascota['color'] ?? '',
       raza: razaFromString(mascota['raza'], especieFromInt(mascota['especie'] ?? 0)),
       especie: especieFromInt(mascota['especie'] ?? 0),
-      description: mascota['description'] ?? '',
-      imageUrl: mascota['imageUrl'] ?? 'https://st2.depositphotos.com/1052079/7333/v/450/depositphotos_73330751-stock-illustration-silhouettes-of-pets-cat-dog.jpg',
+      description: mascota['description'] ?? emptyDescription,
+      imageUrl: mascota['imageUrl'] ?? defaultPetImage,
     );
   }
 
