@@ -9,7 +9,7 @@ import 'package:perdidos_ya/objects/report.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:convert';
-
+import 'package:perdidos_ya/cloudinary.dart';
 
 class HomePage extends StatefulWidget {
   final users.User user;
@@ -91,23 +91,23 @@ class _HomePageState extends State<HomePage> {
   }
 }
   
-Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) async {
-  String? imageUrl;
-    final response = await http.get(Uri.parse(urlAPI));
-    if (response.statusCode == 200) {
-      dynamic data = json.decode(response.body);
-      if(especieElegida == 'Gato'){
-        print(data);
-        imageUrl =  data.isNotEmpty ? data[0]['url'] : null;
-      }else{
-        print(data);
-        imageUrl =  data['message'];
-      }
-      return imageUrl;
-    }else {
-      throw Exception('Failed to load image');
-    }
-  }
+// Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) async {
+//   String? imageUrl;
+//     final response = await http.get(Uri.parse(urlAPI));
+//     if (response.statusCode == 200) {
+//       dynamic data = json.decode(response.body);
+//       if(especieElegida == 'Gato'){
+//         print(data);
+//         imageUrl =  data.isNotEmpty ? data[0]['url'] : null;
+//       }else{
+//         print(data);
+//         imageUrl =  data['message'];
+//       }
+//       return imageUrl;
+//     }else {
+//       throw Exception('Failed to load image');
+//     }
+//   }
 
   void _mostrarDialogoAgregarAnuncio(int base) async {
     String titulo = '';
@@ -121,8 +121,9 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
     bool botonPerroPresionado = false;
     final zonas = Zona.values;
     Zona? zonaElegida;
-    String urlAPI = 'vacio';
+    // String urlAPI = 'vacio';
     String? imageUrl;
+
 
     await showDialog(
         context: context,
@@ -131,25 +132,28 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
             title: const Text('Agregar Anuncio'),
             content:SingleChildScrollView(
               child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setDialogState){
-                      return  Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                builder: (BuildContext context, StateSetter setDialogState){
+                  return  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Center(
-                      child: imageUrl == null
-                          ?  Icon(Icons.help_center_outlined) // Si imageUrl es null, mostrar el indicador de carga
-                          : CachedNetworkImage(
-                              imageUrl: imageUrl!,
-                              placeholder: (context, url) => CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => Icon(Icons.error),
-                            ),
-                        ),
-                        TextField(
-                          decoration: InputDecoration(labelText: 'Título'),
-                          onChanged: (value) {
-                            titulo = value;
-                          },
-                        ),
+                        child: imageUrl == null
+                          ? Icon(Icons.help_center_outlined) // Si imageUrl es null, mostrar el indicador de carga
+                          : Image.network(
+                            imageUrl!,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return CircularProgressIndicator();
+                            },
+                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                          ),
+                      ),
+                      TextField(
+                        decoration: InputDecoration(labelText: 'Título'),
+                        onChanged: (value) {
+                          titulo = value;
+                        },
+                      ),
                       Center(
                       child: Container(
                         padding: EdgeInsets.all(5.0), // Espaciado interno
@@ -168,10 +172,10 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                                 setDialogState(() {
                                   botonGatoPresionado = true;
                                   botonPerroPresionado = false;
-                                  urlAPI = imageCatAPI;
+                                  // urlAPI = imageCatAPI;
                                   especieSeleccionada = especies[0];
                                 });
-                                imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
+                                // imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
                                 setDialogState(() {});
                               },
                               style: IconButton.styleFrom(
@@ -190,10 +194,10 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                                 setDialogState(() {
                                   botonGatoPresionado = false;
                                   botonPerroPresionado = true;
-                                  urlAPI = imageDogAPI;
+                                  // urlAPI = imageDogAPI;
                                   especieSeleccionada = especies[1];
                                 });
-                                imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
+                                // imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
                                 setDialogState(() {});
                               },
                               style: IconButton.styleFrom(
@@ -251,6 +255,16 @@ Future<String?> obtenerImagenAleatoria(String urlAPI, String especieElegida) asy
                   onChanged: (value) {
                     ubicacion = value;
                   },
+                ),
+                TextButton(
+                  onPressed: () async {
+                    setDialogState(() {});
+                  String? path = await pickAndUploadImage();
+                  setDialogState(() {
+                    imageUrl = path;
+                  });
+                },
+                child: Text('Agregar Imagen'),
                 ),
               ],
             );
@@ -593,35 +607,35 @@ class PetAlertWidget extends StatelessWidget {
 
 }
 
-class RandomImage {
-  static Future<String?> obtenerImagenAleatoria(String especieElegida) async {
-    const String imageCatAPI = "https://api.thecatapi.com/v1/images/search";
-    const String imageDogAPI = "https://dog.ceo/api/breeds/image/random";
+// class RandomImage {
+//   static Future<String?> obtenerImagenAleatoria(String especieElegida) async {
+//     const String imageCatAPI = "https://api.thecatapi.com/v1/images/search";
+//     const String imageDogAPI = "https://dog.ceo/api/breeds/image/random";
     
-    String? imageUrl;
+//     String? imageUrl;
 
-    final response = await http.get(Uri.parse(especieElegida == 'Gato' ? imageCatAPI : imageDogAPI));
+//     final response = await http.get(Uri.parse(especieElegida == 'Gato' ? imageCatAPI : imageDogAPI));
 
-    if (response.statusCode == 200) {
-      dynamic data = json.decode(response.body);
+//     if (response.statusCode == 200) {
+//       dynamic data = json.decode(response.body);
 
-      if (especieElegida == 'Gato'){
-        print(data);
-        imageUrl =  data.isNotEmpty ? data[0]['url'] : null;
-      }else{
-        print(data);
-        imageUrl =  data['message'];
-      }
+//       if (especieElegida == 'Gato'){
+//         print(data);
+//         imageUrl =  data.isNotEmpty ? data[0]['url'] : null;
+//       }else{
+//         print(data);
+//         imageUrl =  data['message'];
+//       }
 
-      return imageUrl;
+//       return imageUrl;
       
-    }else {
-      throw Exception('Failed to load image');
-    }
-  }
+//     }else {
+//       throw Exception('Failed to load image');
+//     }
+//   }
 
 
-}
+// }
 
 class ReportsFilterButton extends StatelessWidget {
   final String text;
