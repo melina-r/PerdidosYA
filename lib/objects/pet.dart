@@ -41,27 +41,34 @@ class Pet {
     );
   }
 
-  static dynamic razaFromString(String raza, Especie especie) {
-    if (especie == Especie.perro) {
-      return RazaPerro.values.firstWhere((e) => e.toString().split('.').last == raza, orElse: () => RazaPerro.mestizo);
-    } else if (especie == Especie.gato) {
-      return RazaGato.values.firstWhere((e) => e.toString().split('.').last == raza, orElse: () => RazaGato.mestizo);
-    } else {
-      throw ArgumentError("Especie no soportada: $especie");
-    }
+  static Enum getRazaDefault(Especie especie) {
+    return especie == Especie.gato ? RazaGato.mestizo : RazaPerro.mestizo;
   }
 
-  String razaToString() {
-    return raza.toString().split('.').last;
+  static dynamic razaFromString(String raza, Especie especie) {
+    final especieToRaza = {
+      Especie.perro: RazaPerro.values,
+      Especie.gato: RazaGato.values,
+    };
+
+    final razas = especieToRaza[especie];
+    return razas!.firstWhere(
+      (value) => splitAndGetEnum(value) == raza, 
+      orElse: () => getRazaDefault(especie)
+    );
+  }
+
+  static String splitAndGetEnum(Enum object) {
+    return object.toString().split('.').last;
+  }
+
+  static int getIntValueFromEnum(Enum object) {
+    return object.index;
   }
 
   // Métodos para mapear int a enums específicos
   static Especie especieFromInt(int value) {
     return Especie.values[value];
-  }
-
-  static int especieToInt(Especie especie) {
-    return especie.index;
   }
 
   static AgePet agePetFromInt(int value) {
@@ -74,31 +81,19 @@ class Pet {
 
   Map<String, dynamic> toMap() {
     return {
-      'age': _agePetToInt(age),
-      'size': _sizePetToInt(size),
+      'age': getIntValueFromEnum(age),
+      'size': getIntValueFromEnum(size),
       'name': name,
       'color': color,
-      'raza': razaToString(),
-      'especie': especieToInt(especie),
+      'raza': splitAndGetEnum(raza),
+      'especie': getIntValueFromEnum(especie),
       'description': description,
       'imageUrl': imageUrl,
     };
   }
 
-  static int _agePetToInt(AgePet age) {
-    return age.index;
-  }
-
-  static int _sizePetToInt(SizePet size) {
-    return size.index;
-  }
-
-  String _getStringValue(Enum value) {
-    return value.toString().split('.').last;
-  }
-
-  String get ageString => _getStringValue(age);
-  String get sizeString => _getStringValue(size);
-  String get razaString => razaToString();
-  String get especieString => _getStringValue(especie);
+  String get ageString => splitAndGetEnum(age);
+  String get sizeString => splitAndGetEnum(size);
+  String get razaString => splitAndGetEnum(raza);
+  String get especieString => splitAndGetEnum(especie);
 }
