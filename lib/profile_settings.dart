@@ -38,7 +38,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
       appBar: CustomAppBar(
         user: widget.user, 
         title: "Configuraciones", 
-        icon: Icon(Icons.logout, color: colorPrincipalUno, size: 30),
+        icon: Icon(Icons.logout, color: colorTerciario, size: 30),
         onPressed: () {
           LogoutAlert.show(context);
         },

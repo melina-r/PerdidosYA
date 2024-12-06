@@ -1,19 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:perdidos_ya/components/custom_appbar.dart';
 import 'package:perdidos_ya/components/especies_buttons.dart';
+import 'package:perdidos_ya/components/new_alert_buttons.dart';
 import 'package:perdidos_ya/components/pet_alert_widget.dart';
 import 'package:perdidos_ya/components/report_image.dart';
 import 'package:perdidos_ya/components/report_info_card.dart';
 import 'package:perdidos_ya/components/reports_filters.dart';
 import 'package:perdidos_ya/objects/mensaje.dart';
-import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/report.dart';
 import 'package:perdidos_ya/cloudinary.dart';
-import 'package:perdidos_ya/utils.dart';
 
 class HomePage extends StatefulWidget {
   final users.User user;
@@ -60,17 +59,18 @@ class _HomePageState extends State<HomePage> {
     String id = await Reporte.generateId(tablaBaseDeDatos);
 
     Reporte reporte = Reporte(
-        titulo: titulo,
-        descripcion: descripcion,
-        zona: zona,
-        ubicacion: ubicacion,
-        raza: raza,
-        especie: especie,
-        user: widget.user.username,
-        imageUrl: imageUrl!,
-        id: id,
-        type: tablaBaseDeDatos,
-        email: widget.user.email);
+      titulo: titulo,
+      descripcion: descripcion,
+      zona: zona,
+      ubicacion: ubicacion,
+      raza: raza,
+      especie: especie,
+      user: widget.user.username,
+      imageUrl: imageUrl!,
+      id: id,
+      type: tablaBaseDeDatos,
+      email: widget.user.email
+    );
 
     FirebaseFirestore.instance
         .collection(tablaBaseDeDatos)
@@ -185,8 +185,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   TextField(
-                    decoration:
-                        InputDecoration(labelText: 'Ubicacion (opcional)'),
+                    decoration: InputDecoration(labelText: 'Ubicacion (opcional)'),
                     onChanged: (value) {
                       ubicacion = value;
                     },
@@ -417,10 +416,13 @@ class _HomePageState extends State<HomePage> {
     for (var alert in alerts) {
       final report = Reporte.fromMap(alert.data() as Map<String, dynamic>);
       if (widget.user.email != report.email) {
-        combinedAlerts.add(PetAlertWidget(
+        combinedAlerts.add(
+          PetAlertWidget(
             username: report.user,
             reporte: report,
-            onTap: () => _mostrarAnuncio(report)));
+            onTap: () => _mostrarAnuncio(report)
+          )
+        );
       }
     }
   }
@@ -432,71 +434,24 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      AppBar(
-        backgroundColor: colorPrincipalUno,
-        title: Center(
-          child: Text('Inicio'),
-        ),
-        automaticallyImplyLeading: false,
-      ),
+      CustomAppBar(user: widget.user, title: 'Inicio'),
+      SizedBox(height: 20),
       Center(
-        child: Container(
-          padding: EdgeInsets.all(5.0), // Espaciado interno
-          decoration: BoxDecoration(
-            color: Colors.transparent, // Color de fondo
-          ),
-          child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceAround, // Espacio entre botones
-            children: [
-              SizedBox(
-                width: 150, // Ancho del primer botón
-                height: 100,
-                child: ElevatedButton(
-                  onPressed: () {
-                    _mostrarDialogoAgregarAnuncio(perdido);
-                  }, // Texto del botón
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorSecundarioUno, // Color de fondo
-                    foregroundColor: Colors.black, // Color del texto
-                    shape: CircleBorder(),
-                  ),
-                  child: Text('Mascota Perdida', textAlign: TextAlign.center),
-                ),
-              ),
-              SizedBox(
-                width: 150, // Ancho del primer botón
-                height: 100,
-                child: ElevatedButton(
-                  onPressed: () {
-                    _mostrarDialogoAgregarAnuncio(encontrado);
-                  }, // Texto del botón
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorSecundarioUno, // Color de fondo
-                    foregroundColor: Colors.black, // Color del texto
-                    shape: CircleBorder(),
-                  ),
-                  child: Text(
-                    'Mascota Encontrada',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        child: NewAlert(onPressed: _mostrarDialogoAgregarAnuncio),
       ),
       Align(
-          alignment: Alignment.bottomLeft, // Alinea el botón a la izquierda
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FloatingActionButton(
-              onPressed: () {
-                _mostrarFiltros();
-              },
-              child: Icon(Icons.filter_list),
-            ),
-          )),
+        alignment: Alignment.bottomLeft, // Alinea el botón a la izquierda
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: FloatingActionButton(
+            onPressed: () {
+              _mostrarFiltros();
+            },
+            child: Icon(Icons.filter_list),
+          ),
+        )
+      ),
+      
       listasFiltradas(), //ACA VA LISTA FILTRADA
     ]);
   }

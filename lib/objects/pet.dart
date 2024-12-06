@@ -73,10 +73,6 @@ SizePet sizePetFromInt(int value) {
   return SizePet.values[value];
 }
 
-Enum getRazaDefault(Especie especie) {
-  return especie == Especie.gato ? RazaGato.mestizo : RazaPerro.mestizo;
-}
-
 dynamic razaFromString(String raza, Especie especie) {
   final especieToRaza = {
     Especie.perro: RazaPerro.values,
@@ -84,8 +80,16 @@ dynamic razaFromString(String raza, Especie especie) {
   };
 
   final razas = especieToRaza[especie];
-  return razas!.firstWhere(
-    (value) => splitAndGetEnum(value) == raza, 
-    orElse: () => getRazaDefault(especie)
-  );
+  
+  if (especie == Especie.gato) {
+    return (razas as List<RazaGato>).firstWhere(
+      (value) => splitAndGetEnum(value) == raza,
+      orElse: () => RazaGato.mestizo, 
+    );
+  } else {
+    return (razas as List<RazaPerro>).firstWhere(
+      (value) => splitAndGetEnum(value) == raza,
+      orElse: () => RazaPerro.mestizo, 
+    );
+  }
 }

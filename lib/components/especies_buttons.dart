@@ -23,9 +23,9 @@ class _EspeciesButtonsState extends State<EspeciesButtons> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: especies.map((especie) {
         return IconButton(
-          icon: Icon(especie == Especie.gato ? FontAwesomeIcons.cat : FontAwesomeIcons.dog),
-          iconSize: 80,
-          splashRadius: 50,
+          icon: Icon(especie == Especie.gato ? FontAwesomeIcons.cat : FontAwesomeIcons.dog,),
+          iconSize: 50,
+          padding: EdgeInsets.all(20),
           onPressed: () {
             widget.onSelected(splitAndGetEnum(especie));
             setState(() {

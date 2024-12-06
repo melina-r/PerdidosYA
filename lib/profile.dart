@@ -54,7 +54,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
       appBar: CustomAppBar(
         user: widget.user,
         title: "Perfil",
-        icon: Icon(Icons.settings, color: colorPrincipalUno, size: 30),
+        icon: Icon(Icons.settings, color: colorTerciario, size: 30),
         onPressed: () {
           Navigator.push(
             context,
