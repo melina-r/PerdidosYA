@@ -1,7 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/cloudinary.dart';
 import 'package:perdidos_ya/objects/pet.dart';
 import 'package:perdidos_ya/users.dart';
+import 'package:perdidos_ya/utils.dart';
 
 class ListPetsDialog extends StatefulWidget {
   final User user;
@@ -48,9 +51,7 @@ class _ListPetsDialogState extends State<ListPetsDialog> {
                           onPressed: () {
                             widget.user.pets.remove(pet);
                             widget.user.updateDatabase();
-                            for (var element in widget.refreshPages) {
-                              element();
-                            }
+                            widget.refreshPages.forEach(callFunction);
                             setState(() {});
                           },
                         ),
@@ -144,12 +145,10 @@ class _EditPetDialog extends State<EditPetDialog> {
                 onTap: () {
                   pickAndUploadImage().then((value) {
                     if (value != null) {
-                      petInfo.imageUrl = value;
+                      widget.user.updateDatabase();
+                      widget.refreshPages.forEach(callFunction);
                       setState(() {
-                        widget.user.updateDatabase();
-                        widget.refreshPages.forEach((element) {
-                          element();
-                        });
+                        petInfo.imageUrl = value;
                       });
                     }
                   });
@@ -171,7 +170,7 @@ class _EditPetDialog extends State<EditPetDialog> {
                 decoration: InputDecoration(hintText: petInfo.especieString),
                 items: Especie.values.map((especie) => DropdownMenuItem(
                   value: especie.index,
-                  child: Text(especie.toString().split('.').last),
+                  child: Text(splitAndGetEnum(especie)),
                 )).toList(),
                 onChanged: (value) {
                   petInfo.especie = Especie.values[value!];
@@ -186,7 +185,7 @@ class _EditPetDialog extends State<EditPetDialog> {
                 decoration: InputDecoration(hintText: petInfo.razaString),
                 items: razaList.map((raza) => DropdownMenuItem(
                   value: raza.index,
-                  child: Text(raza.toString().split('.').last),
+                  child: Text(splitAndGetEnum(raza)),
                 )).toList(),
                 onChanged: (value) {
                   petInfo.raza = razaList[value!];
@@ -196,20 +195,20 @@ class _EditPetDialog extends State<EditPetDialog> {
                 decoration: InputDecoration(hintText: petInfo.ageString),
                 items: AgePet.values.map((age) => DropdownMenuItem(
                   value: age.index,
-                  child: Text(age.toString().split('.').last),
+                  child: Text(splitAndGetEnum(age)),
                 )).toList(),
                 onChanged: (value) {
-                  petInfo.age = Pet.agePetFromInt(value!);
+                  petInfo.age = agePetFromInt(value!);
                 },
               ),
               DropdownButtonFormField<int>(
                 decoration: InputDecoration(hintText: petInfo.sizeString),
                 items: SizePet.values.map((size) => DropdownMenuItem(
                   value: size.index,
-                  child: Text(size.toString().split('.').last),
+                  child: Text(splitAndGetEnum(size)),
                 )).toList(),
                 onChanged: (value) {
-                  petInfo.age = Pet.agePetFromInt(value!);
+                  petInfo.age = agePetFromInt(value!);
                 },
               ),
             ],
@@ -248,10 +247,7 @@ class _EditPetDialog extends State<EditPetDialog> {
               }
 
               widget.user.updateDatabase();
-
-              widget.refreshPages.forEach((element) {
-                element();
-              });
+              widget.refreshPages.forEach(callFunction);
 
               Navigator.pop(context);
             },

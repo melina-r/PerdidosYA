@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:perdidos_ya/components/pet_alert_widget.dart';
+import 'package:perdidos_ya/components/report_image.dart';
+import 'package:perdidos_ya/components/report_info_card.dart';
+import 'package:perdidos_ya/components/reports_filters.dart';
 import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/objects/report.dart';
-import 'package:http/http.dart' as http;
-import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:convert';
 import 'package:perdidos_ya/cloudinary.dart';
 
 class HomePage extends StatefulWidget {
@@ -115,16 +116,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Center(
-                        child: imageUrl == null
-                          ? Icon(Icons.help_center_outlined) // Si imageUrl es null, mostrar el indicador de carga
-                          : Image.network(
-                            imageUrl!,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return CircularProgressIndicator();
-                            },
-                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                          ),
+                        child: ReportImage(imageUrl: imageUrl),
                       ),
                       TextField(
                         decoration: InputDecoration(labelText: 'Título'),
@@ -150,10 +142,8 @@ class _HomePageState extends State<HomePage> {
                                 setDialogState(() {
                                   botonGatoPresionado = true;
                                   botonPerroPresionado = false;
-                                  // urlAPI = imageCatAPI;
                                   especieSeleccionada = especies[0];
                                 });
-                                // imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
                                 setDialogState(() {});
                               },
                               style: IconButton.styleFrom(
@@ -172,10 +162,8 @@ class _HomePageState extends State<HomePage> {
                                 setDialogState(() {
                                   botonGatoPresionado = false;
                                   botonPerroPresionado = true;
-                                  // urlAPI = imageDogAPI;
                                   especieSeleccionada = especies[1];
                                 });
-                                // imageUrl = await obtenerImagenAleatoria(urlAPI, especieSeleccionada);
                                 setDialogState(() {});
                               },
                               style: IconButton.styleFrom(
@@ -534,139 +522,9 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class ReportInfoCard extends StatelessWidget {
-  final Reporte reporte;
 
-  const ReportInfoCard({required this.reporte});
 
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Center(
-          child: reporte.imageUrl == null
-              ?  Icon(Icons.help_center_outlined)
-              : CachedNetworkImage(
-                  imageUrl: reporte.imageUrl!,
-                  placeholder: (context, url) => CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                ),
-            ),
-        DetailTile(title: 'Zona', info: reporte.zona),
-        DetailTile(title: 'Especie', info: reporte.especie),
-        DetailTile(title: 'Raza', info: reporte.raza),
-        DetailTile(title: 'Descripción', info: reporte.descripcion),
-        DetailTile(title: 'Ubicacion', info: reporte.ubicacion),
-      ],
-    );
-  }
-}
 
-class PetAlertWidget extends StatelessWidget {
-  final String username;
-  final Reporte reporte;
-  final VoidCallback onTap;
 
-  const PetAlertWidget({required this.username, required this.reporte, required this.onTap});
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        child: ListTile(
-          title: Text(username, style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(reporte.titulo),
-          onTap: onTap,
-        ),
-      ),
-    );
-  }
 
-}
-
-class ReportsFilterButton extends StatelessWidget {
-  final String text;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const ReportsFilterButton({required this.text, required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(text),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-
-}
-
-class Filters extends StatelessWidget {
-  final Map<String, bool> mostrarBases;
-  final VoidCallback refresh;
-
-  const Filters({super.key, required this.mostrarBases, required this.refresh});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-          backgroundColor: colorTerciario,
-          title: Center(child: Text('Filtrar'),),
-          content: SizedBox(
-            height: 400,
-            width: 300,
-            child: Center(
-            child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setDialogState) {
-                      return  Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: 
-                        List<Widget>.from(mostrarBases.keys.map((key) {
-                          return ReportsFilterButton(
-                            text: key,
-                            value: mostrarBases[key]!,
-                            onChanged: (bool value) {
-                              setDialogState(() {
-                                mostrarBases[key] = value;
-                                refresh();
-                              });
-                            },
-                          );
-                        }).toList()) + [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Cerrar'),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-              ),
-          ),
-        );
-  }
-}
-
-class DetailTile extends StatelessWidget {
-  final String title;
-  final String info;
-
-  const DetailTile({required this.title, required this.info});
-
-  @override
-  Widget build(BuildContext context) {
-    print('title: $title, info: $info');
-    return ListTile(
-      title: Text('$title:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-      subtitle: Text(info),
-    );
-  }
-}

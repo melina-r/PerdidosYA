@@ -10,6 +10,7 @@ import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart';
+import 'package:perdidos_ya/utils.dart';
 
 class ProfilePage extends StatefulWidget {
   final User user;
@@ -92,9 +93,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                           title: "Mis reportes",
                           content: [...widget.user.reports.map((report) => ReportDetails(reportInfo: report, deleteFunction: () {
                             widget.user.deleteReport(report);
-                            for (var element in widget.refreshPages + [_refresh]) {
-                              element();
-                            }
+                            [...widget.refreshPages, _refresh].forEach(callFunction);
                           },))],
                         )
                       ])

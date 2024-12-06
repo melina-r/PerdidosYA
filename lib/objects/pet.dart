@@ -1,4 +1,5 @@
 import 'package:perdidos_ya/constants.dart';
+import 'package:perdidos_ya/utils.dart';
 
 enum SizePet { chico, mediano, grande }
 enum AgePet { cachorro, adulto, anciano }
@@ -41,44 +42,6 @@ class Pet {
     );
   }
 
-  static Enum getRazaDefault(Especie especie) {
-    return especie == Especie.gato ? RazaGato.mestizo : RazaPerro.mestizo;
-  }
-
-  static dynamic razaFromString(String raza, Especie especie) {
-    final especieToRaza = {
-      Especie.perro: RazaPerro.values,
-      Especie.gato: RazaGato.values,
-    };
-
-    final razas = especieToRaza[especie];
-    return razas!.firstWhere(
-      (value) => splitAndGetEnum(value) == raza, 
-      orElse: () => getRazaDefault(especie)
-    );
-  }
-
-  static String splitAndGetEnum(Enum object) {
-    return object.toString().split('.').last;
-  }
-
-  static int getIntValueFromEnum(Enum object) {
-    return object.index;
-  }
-
-  // Métodos para mapear int a enums específicos
-  static Especie especieFromInt(int value) {
-    return Especie.values[value];
-  }
-
-  static AgePet agePetFromInt(int value) {
-    return AgePet.values[value];
-  }
-
-  static SizePet sizePetFromInt(int value) {
-    return SizePet.values[value];
-  }
-
   Map<String, dynamic> toMap() {
     return {
       'age': getIntValueFromEnum(age),
@@ -96,4 +59,33 @@ class Pet {
   String get sizeString => splitAndGetEnum(size);
   String get razaString => splitAndGetEnum(raza);
   String get especieString => splitAndGetEnum(especie);
+}
+
+Especie especieFromInt(int value) {
+  return Especie.values[value];
+}
+
+AgePet agePetFromInt(int value) {
+  return AgePet.values[value];
+}
+
+SizePet sizePetFromInt(int value) {
+  return SizePet.values[value];
+}
+
+Enum getRazaDefault(Especie especie) {
+  return especie == Especie.gato ? RazaGato.mestizo : RazaPerro.mestizo;
+}
+
+dynamic razaFromString(String raza, Especie especie) {
+  final especieToRaza = {
+    Especie.perro: RazaPerro.values,
+    Especie.gato: RazaGato.values,
+  };
+
+  final razas = especieToRaza[especie];
+  return razas!.firstWhere(
+    (value) => splitAndGetEnum(value) == raza, 
+    orElse: () => getRazaDefault(especie)
+  );
 }

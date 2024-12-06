@@ -17,7 +17,6 @@ class Reporte {
   Reporte({required this.titulo, required this.descripcion, required this.zona, required this.ubicacion, required this.raza, required this.especie, required this.user, required this.email, required this.imageUrl, required this.type, required this.id});
 
   factory Reporte.fromMap(Map<String, dynamic> reporte) {
-    print(reporte);
     final report = Reporte(
       titulo: reporte['titulo'] ?? '',
       zona: reporte['zona'] ?? '',
@@ -31,7 +30,6 @@ class Reporte {
       type: reporte['type'] ?? 'Mascotas perdidas',
       id: reporte['id'] ?? generateId(reporte['type']),
     );
-    print(report.zona);
     return report;
   }
 
@@ -52,13 +50,12 @@ class Reporte {
   }
 
   static generateId(String tablaBaseDeDatos) async {
-    getRandom() {
+    String idString = () {
       final random = Random();
       final id = List<int>.generate(10, (_) => random.nextInt(10)).join();
       return id;
-    }
+    }();
     
-    String idString = getRandom();
     while ((await FirebaseFirestore.instance.collection(tablaBaseDeDatos).where('id', isEqualTo: idString).get()).docs.isNotEmpty) {
       idString = generateId(tablaBaseDeDatos);
     }
