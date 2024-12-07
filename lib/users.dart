@@ -31,7 +31,7 @@ class User {
   }
 
   static bool isNotEmpty(Map<String, dynamic> map, String key) {
-    return map.containsKey(key) && map[key].length > 0;
+    return map.containsKey(key) && map[key].isNotEmpty;
   }
 
   static User fromMap(Object? userMap) {
