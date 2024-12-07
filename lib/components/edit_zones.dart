@@ -4,11 +4,9 @@ import 'package:perdidos_ya/users.dart';
 
 class AddZoneButton extends StatelessWidget {
   final User user;
-  final Function() refreshList;
-  final Function() refreshSettings;
-  final Function() refreshProfile;
+  final List<VoidCallback> refreshPages;
   
-  const AddZoneButton({required this.user, required this.refreshSettings, required this.refreshProfile, required this.refreshList});
+  const AddZoneButton({required this.user, required this.refreshPages});
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +41,9 @@ class AddZoneButton extends StatelessWidget {
                     if (user.zones.contains(newZone!)) return;
                     user.zones.add(newZone!);
                     user.updateDatabase();
-                    refreshList();
-                    refreshSettings();
-                    refreshProfile();
+                    for (var element in refreshPages) {
+                      element();
+                    }
                     Navigator.of(context).pop();
                   }, 
                   child: Text('Aceptar')
@@ -62,10 +60,9 @@ class AddZoneButton extends StatelessWidget {
 
 class ListZoneDialog extends StatefulWidget {
   final User user;
-  final Function() refreshSettings;
-  final Function() refreshProfile;
+  final List<VoidCallback> refreshPages;
 
-  const ListZoneDialog({required this.user, required this.refreshSettings, required this.refreshProfile});
+  const ListZoneDialog({required this.user, required this.refreshPages});
 
   @override
   State<ListZoneDialog> createState() => _ListZoneDialogState();
@@ -88,8 +85,9 @@ class _ListZoneDialogState extends State<ListZoneDialog> {
                     onPressed: () {
                       widget.user.zones.remove(zone);
                       widget.user.updateDatabase();
-                      widget.refreshSettings();
-                      widget.refreshProfile();
+                      for (var element in widget.refreshPages) {
+                        element();
+                      }
                       setState(() {});
                     },
                   ),
@@ -98,9 +96,7 @@ class _ListZoneDialogState extends State<ListZoneDialog> {
               SizedBox(height: 20),
               AddZoneButton(
                 user: widget.user,
-                refreshList: () => setState(() {}),
-                refreshSettings: widget.refreshSettings,
-                refreshProfile: widget.refreshProfile,
+                refreshPages: widget.refreshPages + [() => setState(() {})],
               ),
             ],
           ),

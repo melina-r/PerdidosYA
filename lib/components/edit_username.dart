@@ -5,10 +5,9 @@ import 'package:perdidos_ya/users.dart';
 
 class EditUsername extends StatelessWidget {
   final User user;
-  final Function() refreshSettings;
-  final Function() refreshProfile;
+  final List<VoidCallback> refreshPages;
 
-  const EditUsername({required this.user, required this.refreshSettings, required this.refreshProfile});
+  const EditUsername({required this.user, required this.refreshPages});
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +52,9 @@ class EditUsername extends StatelessWidget {
             
             user.username = controller.text;
             user.updateDatabase();
-            refreshSettings();
-            refreshProfile();
+            for (var element in refreshPages) {
+              element();
+            }
             Navigator.pop(context);
           },
           child: Text('Aceptar'),

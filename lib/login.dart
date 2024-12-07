@@ -91,11 +91,11 @@ class LoginPage extends StatelessWidget {
 
       var perdidosSnapshot = await FirebaseFirestore.instance
           .collection('Mascotas perdidas')
-          .where('user', isEqualTo: userDoc['username'])
+          .where('email', isEqualTo: userDoc['email'])
           .get();
       var encontradosSnapshot = await FirebaseFirestore.instance
           .collection('Mascotas encontradas')
-          .where('user', isEqualTo: userDoc['username'])
+          .where('email', isEqualTo: userDoc['email'])
           .get();
 
       var perdidos = perdidosSnapshot.docs;
@@ -104,7 +104,7 @@ class LoginPage extends StatelessWidget {
       var reportesTotales = perdidos + encontrados;
       List<Reporte> reportes = reportesTotales.map((reporte) => Reporte.fromMap(reporte.data())).toList();
       Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-      userData['reportes'] = reportes;
+      userData['reports'] = reportes;
 
       users.User user = users.User.fromMap(userData);
 

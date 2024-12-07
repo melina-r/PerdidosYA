@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:perdidos_ya/objects/mensaje.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,115 +59,57 @@ Widget MensajeShowAlert(String body, String from, Timestamp recibido) {
     );
   }
 
-void _eliminarMensaje(Mensaje mensaje) async {
-    try {
-      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('username', isEqualTo: widget.user.username)
-        .get();
-
-    if (userSnapshot.docs.isEmpty) {
-      print('Usuario no encontrado');
-      return;
-    }
-
-    DocumentSnapshot userDoc = userSnapshot.docs.first;
-
-    await userDoc.reference.update({
-      'messages': FieldValue.arrayRemove([mensaje.toMap()]),
-    });
-    } catch (e) {
-      print('Error al eliminar el mensaje: $e');
-    }
-}
-
-void eliminarMensaje(String title, String body, String from, dynamic received){
-  Mensaje finalMensaje = Mensaje(
-      title: title,
-      body: body,
-      from: from,
-      received: received
-    );
-    showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("¿Eliminar mensaje de forma definitiva?"),
-        actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                _eliminarMensaje(finalMensaje);
-                Navigator.pop(context);
-              },
-              child: Text('Eliminar'),
-            ),
-        ]
-      );
-    }
-  ); 
-}
-
   Widget listarMensajes(){
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-              .collection('users')
-              .where('email', isEqualTo: widget.user.email)
-              .snapshots(),
+    List<Widget> mensajes = [];
+      return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: this.widget.user.email)
+        .snapshots(),
       builder: (context, messageSnapshot) {
         if (messageSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
-        }
+              return Center(child: CircularProgressIndicator()); // **Retorno de cargador mientras no hay datos**
+            }
         if (!messageSnapshot.hasData || messageSnapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No hay mensajes disponibles.'));
-        }
-        final userDoc = messageSnapshot.data!.docs.first;
-        List<dynamic> messagesAlerts = userDoc['messages'] ?? [];
-        List<Widget> mensajes = messagesAlerts.map((mensaje) {
-          final titulo = mensaje['title'] ?? 'Sin título';
-          final body = mensaje['body'] ?? 'Sin contenido';
-          final from = mensaje['from'] ?? 'Remitente desconocido';
-          dynamic recibido = mensaje['received'];
+              return Center(child: Text('No hay mensajes disponibles.'));
+            }
+      final userDoc = messageSnapshot.data!.docs.first;
+      List<dynamic> messagesAlerts = userDoc['messages'] ?? [];
+      List<Widget> mensajes = messagesAlerts.map((mensaje) {
+        final titulo = mensaje['title'] ?? 'Sin título';
+        final body = mensaje['body'] ?? 'Sin contenido';
+        final from = mensaje['from'] ?? 'Remitente desconocido';
+        dynamic recibido = mensaje['received'];
 
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              elevation: 2.0,
-              child: ListTile(
-                title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(from),
-                trailing: IconButton(
-                icon: Icon(Icons.delete),
-                  onPressed: () {
-                      eliminarMensaje(titulo, body, from, recibido);
-                  }
-                ),
-                onTap: () {
-                  _mostrarMensaje(titulo, body, from, recibido);
-                },
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            elevation: 2.0,
+            child: ListTile(
+              title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              subtitle: Text(from),
+              onTap: () {
+                _mostrarMensaje(titulo, body, from, recibido);
+              },
             ),
-          );
-        }).toList();
-
-        // Retornar la lista de mensajes como un ListView
-        return ListView.builder(
-          itemCount: mensajes.length,
-          itemBuilder: (context, index) => mensajes[index],
+          ),
         );
-      }
+      }).toList();
+
+      // Retornar la lista de mensajes como un ListView
+      return ListView.builder(
+        itemCount: mensajes.length,
+        itemBuilder: (context, index) => mensajes[index],
+      );
+        }
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Mis Mensajes")),
-      body: listarMensajes(),
+    @override
+Widget build(BuildContext context) {
+     return Scaffold(
+          appBar: AppBar(title: Text("Mis Mensajes")),
+          body: listarMensajes(),
     );
   }
 }
