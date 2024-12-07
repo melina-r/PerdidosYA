@@ -124,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                               )
                             ))
                           ]
-                        ),// ESTO VA COMENTADO PORQUE NO LO MUESTRO EN EL PRINCIPIO DE LA APP Y DESPUÉS LO AGREGO
+                        ),
                         ToggleData(
                           icon: Icons.pets, 
                           title: "Mis mascotas", 
