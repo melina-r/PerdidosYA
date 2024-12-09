@@ -25,7 +25,6 @@ class ToggleList extends StatelessWidget {
   }
 }
 
-// Clase de datos para encapsular cada sección de la lista
 class ToggleData {
   final IconData icon;
   final String title;

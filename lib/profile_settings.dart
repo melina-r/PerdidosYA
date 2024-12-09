@@ -8,6 +8,7 @@ import 'package:perdidos_ya/components/custom_appbar.dart';
 import 'package:perdidos_ya/components/toggle_list.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
+import 'package:perdidos_ya/utils.dart';
 
 class ProfileSettings extends StatefulWidget {
   final users.User user;
@@ -37,7 +38,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
       appBar: CustomAppBar(
         user: widget.user, 
         title: "Configuraciones", 
-        icon: Icon(Icons.logout, color: colorPrincipalUno, size: 30),
+        icon: Icon(Icons.logout, color: colorTerciario, size: 30),
         onPressed: () {
           LogoutAlert.show(context);
         },
@@ -92,10 +93,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         onChanged: (bool value) {
                             widget.user.notifications = value;
                             widget.user.updateDatabase();
-                            for (var element in widget.refreshPages) {
-                              element();
-                            }
-                            setState(() {});
+                            [...widget.refreshPages, _refresh].forEach(callFunction);
                         },
                       ),
                     )

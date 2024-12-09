@@ -1,3 +1,6 @@
+import 'package:perdidos_ya/constants.dart';
+import 'package:perdidos_ya/utils.dart';
+
 enum SizePet { chico, mediano, grande }
 enum AgePet { cachorro, adulto, anciano }
 enum RazaPerro { mestizo, bulldog, labrador, pastorAleman, pastorBelga, boxer, chihuahua, dalmata, doberman, goldenRetriever, huskySiberiano, pug, rottweiler, sanBernardo, schnauzer, shihTzu, yorkshireTerrier }
@@ -12,6 +15,7 @@ class Pet {
   Especie especie;
   dynamic raza;
   String? description;
+  String? imageUrl;
 
   Pet({
     required this.age,
@@ -20,7 +24,8 @@ class Pet {
     required this.color,
     required this.raza,
     required this.especie,
-    this.description
+    this.description,
+    this.imageUrl,
   });
 
    // Método de fábrica para crear Pet desde el diccionario
@@ -32,67 +37,59 @@ class Pet {
       color: mascota['color'] ?? '',
       raza: razaFromString(mascota['raza'], especieFromInt(mascota['especie'] ?? 0)),
       especie: especieFromInt(mascota['especie'] ?? 0),
-      description: mascota['description'] ?? '',
+      description: mascota['description'] ?? emptyDescription,
+      imageUrl: mascota['imageUrl'] ?? defaultPetImage,
     );
-  }
-
-  static dynamic razaFromString(String raza, Especie especie) {
-    if (especie == Especie.perro) {
-      return RazaPerro.values.firstWhere((e) => e.toString().split('.').last == raza, orElse: () => RazaPerro.mestizo);
-    } else if (especie == Especie.gato) {
-      return RazaGato.values.firstWhere((e) => e.toString().split('.').last == raza, orElse: () => RazaGato.mestizo);
-    } else {
-      throw ArgumentError("Especie no soportada: $especie");
-    }
-  }
-
-  String razaToString() {
-    return raza.toString().split('.').last;
-  }
-
-  // Métodos para mapear int a enums específicos
-  static Especie especieFromInt(int value) {
-    return Especie.values[value];
-  }
-
-  static int especieToInt(Especie especie) {
-    return especie.index;
-  }
-
-  static AgePet agePetFromInt(int value) {
-    return AgePet.values[value];
-  }
-
-  static SizePet sizePetFromInt(int value) {
-    return SizePet.values[value];
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'age': _agePetToInt(age),
-      'size': _sizePetToInt(size),
+      'age': getIntValueFromEnum(age),
+      'size': getIntValueFromEnum(size),
       'name': name,
       'color': color,
-      'raza': razaToString(),
-      'especie': especieToInt(especie),
+      'raza': splitAndGetEnum(raza),
+      'especie': getIntValueFromEnum(especie),
       'description': description,
+      'imageUrl': imageUrl,
     };
   }
 
-  static int _agePetToInt(AgePet age) {
-    return age.index;
-  }
+  String get ageString => splitAndGetEnum(age);
+  String get sizeString => splitAndGetEnum(size);
+  String get razaString => splitAndGetEnum(raza);
+  String get especieString => splitAndGetEnum(especie);
+}
 
-  static int _sizePetToInt(SizePet size) {
-    return size.index;
-  }
+Especie especieFromInt(int value) {
+  return Especie.values[value];
+}
 
-  String _getStringValue(Enum value) {
-    return value.toString().split('.').last;
-  }
+AgePet agePetFromInt(int value) {
+  return AgePet.values[value];
+}
 
-  String get ageString => _getStringValue(age);
-  String get sizeString => _getStringValue(size);
-  String get razaString => razaToString();
-  String get especieString => _getStringValue(especie);
+SizePet sizePetFromInt(int value) {
+  return SizePet.values[value];
+}
+
+dynamic razaFromString(String raza, Especie especie) {
+  final especieToRaza = {
+    Especie.perro: RazaPerro.values,
+    Especie.gato: RazaGato.values,
+  };
+
+  final razas = especieToRaza[especie];
+  
+  if (especie == Especie.gato) {
+    return (razas as List<RazaGato>).firstWhere(
+      (value) => splitAndGetEnum(value) == raza,
+      orElse: () => RazaGato.mestizo, 
+    );
+  } else {
+    return (razas as List<RazaPerro>).firstWhere(
+      (value) => splitAndGetEnum(value) == raza,
+      orElse: () => RazaPerro.mestizo, 
+    );
+  }
 }
