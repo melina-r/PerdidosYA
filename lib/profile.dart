@@ -47,36 +47,6 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
     setState(() {});
   }
 
-  Text _createLabel(Function getContent) {
-    return Text(
-      getContent(),
-      style: TextStyle(fontSize: 24),
-    );
-  }
-
-  String _getPetsCount() {
-    return '${widget.user.pets.length} mascotas';
-  }
-
-  String _getReportsCount() {
-    return '${widget.user.reports.length} reportes';
-  }
-
-  String _getStringZone(Zona zona) {
-    return splitAndGetEnum(zona);
-  }
-
-  String _getUpperZone(String zona) {
-    return zona.toUpperCase();
-  }
-
-  String _getConcatZones() {
-    return widget.user.zones
-      .map((zona) => _getStringZone(zona))
-      .map((zona) => _getUpperZone(zona))
-      .reduce((a, b) => a + b);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,12 +72,6 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Username(username: widget.user.username),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                    _createLabel(_getPetsCount),
-                    _createLabel(_getReportsCount)
-                  ],),
                   SizedBox(height: 20),
                   Column(
                     children: [
