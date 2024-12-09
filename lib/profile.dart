@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 import 'package:flutter/material.dart';
 import 'package:perdidos_ya/components/card_details.dart';
 import 'package:perdidos_ya/components/custom_appbar.dart';
@@ -8,6 +10,7 @@ import 'package:perdidos_ya/objects/barrios.dart';
 import 'package:perdidos_ya/profile_settings.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart';
+import 'package:perdidos_ya/utils.dart';
 
 class ProfilePage extends StatefulWidget {
   final User user;
@@ -51,7 +54,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
       appBar: CustomAppBar(
         user: widget.user,
         title: "Perfil",
-        icon: Icon(Icons.settings, color: colorPrincipalUno, size: 30),
+        icon: Icon(Icons.settings, color: colorTerciario, size: 30),
         onPressed: () {
           Navigator.push(
             context,
@@ -74,11 +77,17 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                     children: [
                       ToggleList(sections: [
                         ToggleData(
-                          icon: Icons.map,
-                          title: "Zonas preferidas", 
-                          content: widget.user.zones.map((zone) => ListTile(
-                            title: Text(zonaToString(zone), style: TextStyle(fontSize: 20)),
-                          )).toList()
+                          icon: Icons.map, 
+                          title: "Zonas Preferidas", 
+                          content: [
+                            ...widget.user.zones
+                            .map((zone) => ListTile(
+                              title: Text(
+                                splitAndGetEnum(zone),
+                                style: TextStyle(fontSize: 24),
+                              )
+                            ))
+                          ]
                         ),
                         ToggleData(
                           icon: Icons.pets, 
@@ -90,10 +99,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                           title: "Mis reportes",
                           content: [...widget.user.reports.map((report) => ReportDetails(reportInfo: report, deleteFunction: () {
                             widget.user.deleteReport(report);
-                            for (var element in widget.refreshPages) {
-                              element();
-                            }
-                            _refresh();
+                            [...widget.refreshPages, _refresh].forEach(callFunction);
                           },))],
                         )
                       ])

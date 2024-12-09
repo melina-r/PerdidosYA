@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:perdidos_ya/cloudinary.dart';
 import 'package:perdidos_ya/theme.dart';
 import 'package:perdidos_ya/users.dart' as users;
 
@@ -45,45 +46,13 @@ class _ProfilePicState extends State<ProfilePic> {
               ),
               child: GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context, 
-                    builder: (BuildContext context) {
-                      TextEditingController controller = TextEditingController();
-                      return AlertDialog(
-                        title: const Text('Cambiar foto de perfil'),
-                        content: 
-                        TextField(
-                          controller: controller,
-                          decoration: const InputDecoration(
-                            labelText: 'URL de la imagen',
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Cancelar'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              if (controller.text.isEmpty) {
-                                return;
-                              }
-                              
-                              user.icon = controller.text;
-
-                              user.updateDatabase();
-                              () async => await user.loadFromDatabase();
-
-                              setState(() {});
-                              
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Aceptar'),
-                          ),
-                        ],
-                      );
+                  pickAndUploadImage().then((value) {
+                      if (value != null) {
+                        user.icon = value;
+                        user.updateDatabase();
+                        () async => await user.loadFromDatabase();
+                        setState(() {});
+                      }
                     }
                   );
                 },

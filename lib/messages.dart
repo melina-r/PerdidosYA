@@ -31,7 +31,7 @@ Widget MensajeShowAlert(String body, String from, Timestamp recibido) {
           ),
           ListTile(
             title: Text('recibido:',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-            subtitle: Text(recibido.toDate().day.toString()+'/'+recibido.toDate().month.toString()+'/'+recibido.toDate().year.toString()),
+            subtitle: Text('${recibido.toDate().day}/${recibido.toDate().month}/${recibido.toDate().year}'),
           ),
         ],
       )

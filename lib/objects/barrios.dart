@@ -1,5 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:perdidos_ya/utils.dart';
+
 enum Zona {
   Agronomia,
   Almagro,
@@ -53,12 +55,12 @@ enum Zona {
 }
 
 String zonaToString(Zona zona) {
-  final zonaStr = zona.toString().split('.').last;
+  final zonaStr = splitAndGetEnum(zona);
   return formatZonaName(zonaStr);
 }
 
 Zona stringToZona(String zona) {
-  return Zona.values.firstWhere((e) => e.toString().split('.').last == zona, orElse: () => Zona.Agronomia);
+  return Zona.values.firstWhere((e) => splitAndGetEnum(e) == zona, orElse: () => Zona.Agronomia);
 }
 
 String formatZonaName(String zonaName) {
